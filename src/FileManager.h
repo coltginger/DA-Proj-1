@@ -4,7 +4,7 @@ using namespace std;
 #ifndef DA_PROJ_1_FILEMANAGER_H
 #define DA_PROJ_1_FILEMANAGER_H
 
-
+//esta classe toda serve para passar o conteúdo dos ficheiros para vetores, depois, o graphmanager, passa esses vetores para um graph
 class FileManager {
 private:
     vector<string> _reservoirsfile;

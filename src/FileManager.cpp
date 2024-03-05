@@ -4,6 +4,7 @@
 using namespace std;
 
 FileManager::FileManager() {
+    //na entrega final, tem que se usar os ficheiros do data set grande, estes são para tornar testes mais fáceis
     _reservoirsfile = filetoVector("../src/csv_small/Reservoirs_Madeira.csv");
     _stationsfile = filetoVector("../src/csv_small/Stations_Madeira.csv");
     _citiesfile = filetoVector("../src/csv_small/Cities_Madeira.csv");

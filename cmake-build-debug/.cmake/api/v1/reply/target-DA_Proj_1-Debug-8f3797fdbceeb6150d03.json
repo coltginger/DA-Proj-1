@@ -113,7 +113,8 @@
 			"sourceIndexes" : 
 			[
 				1,
-				2
+				2,
+				4
 			]
 		}
 	],
@@ -140,6 +141,11 @@
 			"compileGroupIndex" : 0,
 			"path" : "main.cpp",
 			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/csv_small/GraphManager.h",
+			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

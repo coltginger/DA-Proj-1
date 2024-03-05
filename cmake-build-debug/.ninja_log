@@ -1,6 +1,4 @@
 # ninja log v5
-10	1239	7313556881261065	CMakeFiles/DA_Proj_1.dir/src/FileManager.cpp.obj	7d151197577d62f9
-7	667	7313556937941043	CMakeFiles/DA_Proj_1.dir/main.cpp.obj	4c7cb78a4813b3c2
-669	1081	7313556942041048	DA_Proj_1.exe	f494cf287a788296
 8	1211	7313558385731050	CMakeFiles/DA_Proj_1.dir/src/FileManager.cpp.obj	7d151197577d62f9
+7	667	7313556937941043	CMakeFiles/DA_Proj_1.dir/main.cpp.obj	4c7cb78a4813b3c2
 1212	1470	7313558388291072	DA_Proj_1.exe	f494cf287a788296

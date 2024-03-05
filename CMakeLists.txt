@@ -9,4 +9,5 @@ add_executable(DA_Proj_1
         src/FileManager.cpp
         src/FileManager.h
         src/Graph.h
-        main.cpp)
+        main.cpp
+        src/csv_small/GraphManager.h)
