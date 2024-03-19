@@ -9,6 +9,7 @@
 #include <queue>
 #include <stack>
 #include <list>
+#include <string>
 
 using namespace std;
 
@@ -19,6 +20,12 @@ template <class T> class Vertex;
 
 /****************** Provided structures  ********************/
 
+enum station_type{
+    Water_Reservoir,
+    Pumping_Station,
+    City
+};
+
 template <class T>
 class Vertex {
     T info;                // contents
@@ -28,11 +35,12 @@ class Vertex {
     int indegree;          // auxiliary field
     int num;               // auxiliary field
     int low;               // auxiliary field
+    station_type type;     // auxiliary field
 
     void addEdge(Vertex<T> *dest, double w);
     bool removeEdgeTo(Vertex<T> *d);
 public:
-    Vertex(T in);
+    Vertex(T in, station_type newType);
     T getInfo() const;
     void setInfo(T in);
     bool isVisited() const;
@@ -53,6 +61,10 @@ public:
     int getLow() const;
 
     void setLow(int low);
+
+    void setType(station_type newType);
+
+    station_type getType();
 
     friend class Graph<T>;
 };
@@ -98,7 +110,7 @@ public:
 /****************** Provided constructors and functions ********************/
 
 template <class T>
-Vertex<T>::Vertex(T in): info(in) {}
+Vertex<T>::Vertex(T in, station_type newType): info(in), type(newType) {}
 
 template <class T>
 Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {}
@@ -198,6 +210,16 @@ int Vertex<T>::getLow() const {
 template<class T>
 void Vertex<T>::setLow(int low) {
     Vertex::low = low;
+}
+
+template<class T>
+void Vertex<T>::setType(station_type newType) {
+    Vertex::type = newType;
+}
+
+template<class T>
+station_type Vertex<T>::getType() {
+
 }
 
 template <class T>
