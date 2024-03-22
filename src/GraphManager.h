@@ -1,5 +1,6 @@
 #include "FileManager.h"
 #include "Graph.h"
+#include "Node.h"
 #include <vector>
 #include "Pipe.h"
 using namespace std;
@@ -10,7 +11,14 @@ using namespace std;
 
 class GraphManager {
 private:
+    Graph<Node> _graph;
     FileManager _vectors;
+    vector<Pipe> _pipes;
+
+public:
+    GraphManager();
+
+    void makePipes();
 };
 
 

@@ -27,11 +27,9 @@ void Node::setReservoir(string reservoir) {_reservoir = reservoir;}
 void Node::setMaxDelivery(int maxDelivery) {_maxDelivery = maxDelivery;}
 void Node::setCity(string city) {_city = city;}
 void Node::setDemand(int demand) {_demand = demand;}
-void Node::setPopulation(int population) {_population = population};
+void Node::setPopulation(int population) {_population = population;};
 
-station_type Node::getType(){
-    return _type;
-}
+station_type Node::getType(){    return _type;}
 int Node::getId(){ return _id;}
 string Node::getCode(){    return _code;}
 string Node::getReservoir(){    return _reservoir;}

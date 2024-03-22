@@ -69,7 +69,8 @@
 				0,
 				3,
 				6,
-				8
+				8,
+				9
 			]
 		}
 	],
@@ -109,7 +110,8 @@
 				0,
 				3,
 				6,
-				8
+				8,
+				9
 			]
 		},
 		{
@@ -173,6 +175,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/Pipe.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/GraphManager.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],
