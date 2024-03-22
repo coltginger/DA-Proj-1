@@ -5,7 +5,9 @@ void GraphManager::makePipes() {
     for (int i = 0; i<pipeinfo.size(); i=i+4){
         string pointA = pipeinfo[i];
         string pointB = pipeinfo[i+1];
-        Pipe newPipe = Pipe();
+        int capacity = stoi(pipeinfo[i+2]);
+        int direction = stoi(pipeinfo[i+3]);
+        Pipe newPipe = Pipe(pointA, pointB, capacity, direction);
         _pipes.push_back(newPipe);
     }
 }
