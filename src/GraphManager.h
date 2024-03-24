@@ -19,6 +19,7 @@ public:
     GraphManager();
 
     void makePipes();
+    void makeNodes();
 };
 
 
