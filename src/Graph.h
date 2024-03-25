@@ -95,7 +95,7 @@ class Graph {
 public:
     Vertex<T> *findVertex(const T &in) const;
     int getNumVertex() const;
-    bool addVertex(const T &in);
+    bool addVertex(const T &in, const station_type &type);
     bool removeVertex(const T &in);
     bool addEdge(const T &sourc, const T &dest, double w);
     bool removeEdge(const T &sourc, const T &dest);
@@ -243,10 +243,10 @@ void Vertex<T>::setAdj(const vector<Edge<T>> &adj) {
  *  Returns true if successful, and false if a vertex with that content already exists.
  */
 template <class T>
-bool Graph<T>::addVertex(const T &in) {
-    if ( findVertex(in) != NULL)
+bool Graph<T>::addVertex(const T &in, const station_type &type) {
+    if (findVertex(in) != NULL)
         return false;
-    vertexSet.push_back(new Vertex<T>(in));
+    vertexSet.push_back(new Vertex<T>(in, type));
     return true;
 }
 
@@ -283,8 +283,8 @@ void Vertex<T>::addEdge(Vertex<T> *d, double w) {
  */
 template <class T>
 bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
-    auto v1 = findVertex(sourc);
-    auto v2 = findVertex(dest);
+    auto v1 = findVertex(sourc, City);
+    auto v2 = findVertex(dest, City);
     if (v1 == NULL || v2 == NULL)
         return false;
     return v1->removeEdgeTo(v2);
@@ -367,7 +367,7 @@ void Graph<T>::dfsVisit(Vertex<T> *v, vector<T> & res) const {
 template <class T>
 vector<T> Graph<T>::dfs(const T & source) const {
     vector<T> res;
-    auto s = findVertex(source);
+    auto s = findVertex(source, City);
     if (s == nullptr)
         return res;
 
@@ -388,7 +388,7 @@ vector<T> Graph<T>::dfs(const T & source) const {
 template <class T>
 vector<T> Graph<T>::bfs(const T & source) const {
     vector<T> res;
-    auto s = findVertex(source);
+    auto s = findVertex(source, City);
     if (s == NULL)
         return res;
     queue<Vertex<T> *> q;

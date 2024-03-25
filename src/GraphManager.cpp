@@ -1,5 +1,11 @@
 #include "GraphManager.h"
 
+GraphManager::GraphManager() {
+    makeNodes();
+    makePipes();
+    addPipes();
+}
+
 void GraphManager::makePipes() {
     auto pipeinfo = _vectors.getPipesFile();
     for (int i = 0; i<pipeinfo.size(); i=i+4){
@@ -18,32 +24,56 @@ void GraphManager::makeNodes() {
     auto reservoirinfo = _vectors.getReservoirsFile();
 
     for (int i = 0; i<cityinfo.size(); i=i+5){
-        string city = cityinfo[i];
-        int id = stoi(cityinfo[i+1]);
-        string code = cityinfo[i+2];
-        int demand = stoi(cityinfo[i+3]);
-        int population = stoi(cityinfo[i+4]);
-        Node newNode = Node(City, city, id, code, demand, population);
-        Vertex<Node> newVertex = Vertex<Node>(newNode, City);
-        _graph.addVertex(newVertex.getInfo());
+        Node newNode = Node(City);
+        newNode.setCity(cityinfo[i]);
+        newNode.setId(stoi(cityinfo[i+1]));
+        newNode.setCode(cityinfo[i+2]);
+        newNode.setDemand(stoi(cityinfo[i+3]));
+        newNode.setPopulation(stoi(cityinfo[i+4]));
+
+        _graph.addVertex(newNode, City);
     }
 
-    for (int i = 0; i<stationinfo.size(); i=i+3){
-        int id = stoi(stationinfo[i]);
-        string code = cityinfo[i++];
-        Node newNode = Node(Pumping_Station, id, code);
-        Vertex<Node> newVertex = Vertex<Node>(newNode, Pumping_Station);
-        _graph.addVertex(newVertex.getInfo());
+    for (int i = 0; i<stationinfo.size(); i=i+2){
+        Node newNode = Node(Pumping_Station);
+        newNode.setId(stoi(stationinfo[i]));
+        newNode.setCode(cityinfo[i+1]);
+
+        _graph.addVertex(newNode, Pumping_Station);
     }
 
     for (int i = 0; i<reservoirinfo.size(); i=i+5){
-        string reservoir = reservoirinfo[i];
-        string municipality = reservoirinfo[i+1];
-        int id = stoi(reservoirinfo[i+2]);
-        string code = cityinfo[i+3];
-        int maxdelivery = stoi(reservoirinfo[i+4]);
-        Node newNode = Node(Water_Reservoir, reservoir, municipality, id, code, maxdelivery);
-        Vertex<Node> newVertex = Vertex<Node>(newNode, Water_Reservoir);
-        _graph.addVertex(newVertex.getInfo());
+        Node newNode = Node(Water_Reservoir);
+        newNode.setReservoir(reservoirinfo[i]);
+        newNode.setMunicipality(reservoirinfo[i+1]);
+        newNode.setId(stoi(reservoirinfo[i+2]));
+        newNode.setCode(cityinfo[i+3]);
+        newNode.setMaxDelivery(stoi(reservoirinfo[i+4]));
+
+        _graph.addVertex(newNode, Water_Reservoir);
     }
+}
+
+void GraphManager::addPipes() {
+    for(int i = 0; i<_pipes.size(); i++){
+        Vertex<Node>* source = nodeFinder(_pipes[i].getPointA());
+        Vertex<Node>* target = nodeFinder(_pipes[i].getPointB());
+
+        int weight = _pipes[i].getCapacity();
+        _graph.addEdge(source->getInfo(), target->getInfo(), weight);
+
+        if (_pipes[1].getDirection() == 0){
+            _graph.addEdge(target->getInfo(), source->getInfo(), weight);
+        }
+    }
+}
+
+Vertex<Node> * GraphManager::nodeFinder(std::string code) {
+    string newsource;
+    for(auto i : _graph.getVertexSet()){
+        if(i->getInfo().getCode() == code){
+            return i;
+        }
+    }
+    return NULL;
 }

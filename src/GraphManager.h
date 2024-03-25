@@ -20,6 +20,9 @@ public:
 
     void makePipes();
     void makeNodes();
+    void addPipes();
+
+    Vertex<Node> * nodeFinder(string code);
 };
 
 
