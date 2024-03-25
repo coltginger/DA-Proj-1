@@ -1,7 +1,6 @@
 #include "Node.h"
 
-Node::Node(station_type type) {
-    _type = type;
+Node::Node() {
     _id = 0;
     _code = "";
     _reservoir = "";
@@ -21,7 +20,6 @@ void Node::setDemand(int demand) {_demand = demand;}
 void Node::setPopulation(int population) {_population = population;};
 void Node::setMunicipality(std::string municipality) {_municipality = municipality;};
 
-station_type Node::getType(){    return _type;}
 int Node::getId(){ return _id;}
 string Node::getCode(){    return _code;}
 string Node::getReservoir(){    return _reservoir;}
@@ -32,8 +30,7 @@ int Node::getDemand() {    return _demand;}
 int Node::getPopulation() {    return _population;};
 
 bool Node::operator==(const Node &other) const {
-    return _type == other._type &&
-            _id == other._id &&
+    return _id == other._id &&
            _code == other._code &&
            _reservoir == other._reservoir &&
            _municipality == other._municipality &&

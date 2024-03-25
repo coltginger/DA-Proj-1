@@ -1,5 +1,4 @@
 #include <string>
-#include "Graph.h"
 using namespace std;
 
 #ifndef DA_PROJ_1_NODE_H
@@ -7,7 +6,6 @@ using namespace std;
 
 class Node {
 private:
-    station_type _type;
     int _id;
     string _code;
     string _reservoir;
@@ -18,7 +16,7 @@ private:
     int _population;
 
 public:
-    Node(station_type type);
+    Node();
 
     void setId(int id);
     void setCode(string code);
@@ -29,7 +27,6 @@ public:
     void setPopulation(int population);
     void setMunicipality(string municipality);
 
-    station_type getType();
     int getId();
     string getCode();
     string getReservoir();

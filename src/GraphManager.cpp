@@ -24,7 +24,7 @@ void GraphManager::makeNodes() {
     auto reservoirinfo = _vectors.getReservoirsFile();
 
     for (int i = 0; i<cityinfo.size(); i=i+5){
-        Node newNode = Node(City);
+        Node newNode = Node();
         newNode.setCity(cityinfo[i]);
         newNode.setId(stoi(cityinfo[i+1]));
         newNode.setCode(cityinfo[i+2]);
@@ -35,19 +35,19 @@ void GraphManager::makeNodes() {
     }
 
     for (int i = 0; i<stationinfo.size(); i=i+2){
-        Node newNode = Node(Pumping_Station);
+        Node newNode = Node();
         newNode.setId(stoi(stationinfo[i]));
-        newNode.setCode(cityinfo[i+1]);
+        newNode.setCode(stationinfo[i+1]);
 
         _graph.addVertex(newNode, Pumping_Station);
     }
 
     for (int i = 0; i<reservoirinfo.size(); i=i+5){
-        Node newNode = Node(Water_Reservoir);
+        Node newNode = Node();
         newNode.setReservoir(reservoirinfo[i]);
         newNode.setMunicipality(reservoirinfo[i+1]);
         newNode.setId(stoi(reservoirinfo[i+2]));
-        newNode.setCode(cityinfo[i+3]);
+        newNode.setCode(reservoirinfo[i+3]);
         newNode.setMaxDelivery(stoi(reservoirinfo[i+4]));
 
         _graph.addVertex(newNode, Water_Reservoir);
@@ -75,5 +75,4 @@ Vertex<Node> * GraphManager::nodeFinder(std::string code) {
             return i;
         }
     }
-    return NULL;
 }
