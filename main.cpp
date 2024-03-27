@@ -1,9 +1,9 @@
 #include "FileManager.h"
 #include "GraphManager.h"
+#include "App.h"
 
 int main(){
-    //esta versão da main é apenas para testar, não vai ser assim
-    FileManager fileManager;
-    GraphManager graphManager;
+    App app;
+    app.run();
     return 0;
 }
