@@ -15,4 +15,7 @@ add_executable(DA_Proj_1
         src/Node.cpp
         src/Pipe.h
         src/Pipe.cpp
-        src/GraphManager.cpp)
+        src/GraphManager.cpp
+        src/App.h
+        src/App.h
+        src/App.cpp)

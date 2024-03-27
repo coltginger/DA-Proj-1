@@ -84,6 +84,13 @@ build CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj: CXX_COMPILER__DA_Proj_1
   OBJECT_DIR = CMakeFiles\DA_Proj_1.dir
   OBJECT_FILE_DIR = CMakeFiles\DA_Proj_1.dir\src
 
+build CMakeFiles/DA_Proj_1.dir/src/App.cpp.obj: CXX_COMPILER__DA_Proj_1_unscanned_Debug C$:/Users/gnbar/OneDrive/Ambiente$ de$ Trabalho/DA-Proj-1/src/App.cpp || cmake_object_order_depends_target_DA_Proj_1
+  DEP_FILE = CMakeFiles\DA_Proj_1.dir\src\App.cpp.obj.d
+  FLAGS = -g -std=gnu++14 -fdiagnostics-color=always
+  INCLUDES = -I"C:/Users/gnbar/OneDrive/Ambiente de Trabalho/DA-Proj-1/src"
+  OBJECT_DIR = CMakeFiles\DA_Proj_1.dir
+  OBJECT_FILE_DIR = CMakeFiles\DA_Proj_1.dir\src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target DA_Proj_1
@@ -92,7 +99,7 @@ build CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj: CXX_COMPILER__DA_Proj_1
 #############################################
 # Link the executable DA_Proj_1.exe
 
-build DA_Proj_1.exe: CXX_EXECUTABLE_LINKER__DA_Proj_1_Debug CMakeFiles/DA_Proj_1.dir/src/FileManager.cpp.obj CMakeFiles/DA_Proj_1.dir/main.cpp.obj CMakeFiles/DA_Proj_1.dir/src/Node.cpp.obj CMakeFiles/DA_Proj_1.dir/src/Pipe.cpp.obj CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj
+build DA_Proj_1.exe: CXX_EXECUTABLE_LINKER__DA_Proj_1_Debug CMakeFiles/DA_Proj_1.dir/src/FileManager.cpp.obj CMakeFiles/DA_Proj_1.dir/main.cpp.obj CMakeFiles/DA_Proj_1.dir/src/Node.cpp.obj CMakeFiles/DA_Proj_1.dir/src/Pipe.cpp.obj CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj CMakeFiles/DA_Proj_1.dir/src/App.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\DA_Proj_1.dir

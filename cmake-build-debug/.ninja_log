@@ -1,21 +1,7 @@
 # ninja log v5
-8	1211	7313558385731050	CMakeFiles/DA_Proj_1.dir/src/FileManager.cpp.obj	7d151197577d62f9
-7	667	7313556937941043	CMakeFiles/DA_Proj_1.dir/main.cpp.obj	4c7cb78a4813b3c2
-1212	1470	7313558388291072	DA_Proj_1.exe	f494cf287a788296
-40	1117	7330350300244812	CMakeFiles/DA_Proj_1.dir/src/Pipe.cpp.obj	6ffad19929bdffb2
-31	1120	7330350300254822	CMakeFiles/DA_Proj_1.dir/src/Node.cpp.obj	4b533f09d067a06c
 23	2125	7330350310354797	CMakeFiles/DA_Proj_1.dir/src/FileManager.cpp.obj	7d151197577d62f9
-23	871	7330351616464778	CMakeFiles/DA_Proj_1.dir/src/Node.cpp.obj	4b533f09d067a06c
-6	1058	7330351618335178	CMakeFiles/DA_Proj_1.dir/main.cpp.obj	4c7cb78a4813b3c2
-15	1463	7330351622365199	CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj	af9587e47bb9517
-1464	2151	7330351629164790	DA_Proj_1.exe	495bf6a463ed5fb2
-25	984	7330356902708897	CMakeFiles/DA_Proj_1.dir/src/Node.cpp.obj	4b533f09d067a06c
-8	1647	7330356909348892	CMakeFiles/DA_Proj_1.dir/main.cpp.obj	4c7cb78a4813b3c2
-17	2139	7330356914298876	CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj	af9587e47bb9517
-2139	2551	7330356918398854	DA_Proj_1.exe	495bf6a463ed5fb2
-7	1316	7330361529989279	CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj	af9587e47bb9517
-1317	1692	7330361533709313	DA_Proj_1.exe	495bf6a463ed5fb2
-7	1344	7330364209159364	CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj	af9587e47bb9517
-1346	1732	7330364213008880	DA_Proj_1.exe	495bf6a463ed5fb2
 8	1309	7330364603178895	CMakeFiles/DA_Proj_1.dir/src/GraphManager.cpp.obj	af9587e47bb9517
+8	1647	7330356909348892	CMakeFiles/DA_Proj_1.dir/main.cpp.obj	4c7cb78a4813b3c2
 1310	1689	7330364606948890	DA_Proj_1.exe	495bf6a463ed5fb2
+40	1117	7330350300244812	CMakeFiles/DA_Proj_1.dir/src/Pipe.cpp.obj	6ffad19929bdffb2
+25	984	7330356902708897	CMakeFiles/DA_Proj_1.dir/src/Node.cpp.obj	4b533f09d067a06c
