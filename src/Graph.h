@@ -26,6 +26,8 @@ enum station_type{
     City
 };
 
+/************************* Vertex  **************************/
+
 template <class T>
 class Vertex {
     T info;                // contents
@@ -36,6 +38,8 @@ class Vertex {
     int num;               // auxiliary field
     int low;               // auxiliary field
     station_type type;     // auxiliary field
+    Edge<T> *path = nullptr;
+    vector<Edge<T> > incoming;
 
     void addEdge(Vertex<T> *dest, double w);
     bool removeEdgeTo(Vertex<T> *d);
@@ -47,48 +51,58 @@ public:
     void setVisited(bool v);
     bool isProcessing() const;
     void setProcessing(bool p);
+
     const vector<Edge<T>> &getAdj() const;
     void setAdj(const vector<Edge<T>> &adj);
-
     int getIndegree() const;
-
     void setIndegree(int indegree);
+    vector<Edge<T>*> getIncoming() const;
+
+    void setPath(Edge<T> *path);
+    Edge<T> *getPath() const;
 
     int getNum() const;
-
     void setNum(int num);
 
     int getLow() const;
-
     void setLow(int low);
 
     void setType(station_type newType);
-
     station_type getType();
 
     friend class Graph<T>;
 };
 
+/********************** Edge  ****************************/
+
 template <class T>
 class Edge {
     Vertex<T> * dest;      // destination vertex
     double weight;         // edge weight
+    int flow;
+    bool selected;
 public:
     Edge(Vertex<T> *d, double w);
     Vertex<T> *getDest() const;
     void setDest(Vertex<T> *dest);
+    //Vertex<T> *getOrig() const;
     double getWeight() const;
     void setWeight(double weight);
+    int getFlow() const;
+    void setFlow(int flow);
+
     friend class Graph<T>;
     friend class Vertex<T>;
 };
 
+/********************** Graph  ****************************/
+
 template <class T>
 class Graph {
     vector<Vertex<T> *> vertexSet;      // vertex set
-    int _index_;                        // auxiliary field
-    stack<Vertex<T>> _stack_;           // auxiliary field
-    list<list<T>> _list_sccs_;        // auxiliary field
+//    int _index_;                        // auxiliary field
+//    stack<Vertex<T>> _stack_;           // auxiliary field
+//    list<list<T>> _list_sccs_;        // auxiliary field
 
     void dfsVisit(Vertex<T> *v,  vector<T> & res) const;
     bool dfsIsDAG(Vertex<T> *v) const;
@@ -105,6 +119,8 @@ public:
     vector<T> bfs(const T &source) const;
     vector<T> topsort() const;
     bool isDAG() const;
+
+    Graph(const Graph& original): vertexSet(original.getVertexSet()) {}
 };
 
 /****************** Provided constructors and functions ********************/
@@ -113,8 +129,7 @@ template <class T>
 Vertex<T>::Vertex(T in, station_type newType): info(in), type(newType) {}
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {}
-
+Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {flow = 0;}
 
 template <class T>
 int Graph<T>::getNumVertex() const {
@@ -146,6 +161,11 @@ void Vertex<T>::setProcessing(bool p) {
     Vertex::processing = p;
 }
 
+template <class T>
+Vertex<T> * Edge<T>::getOrig() const {
+    return this->orig;
+}
+
 template<class T>
 Vertex<T> *Edge<T>::getDest() const {
     return dest;
@@ -164,6 +184,16 @@ double Edge<T>::getWeight() const {
 template<class T>
 void Edge<T>::setWeight(double weight) {
     Edge::weight = weight;
+}
+
+template<class T>
+void Edge<T>::setFlow(int flow) {
+    Edge::flow = flow;
+}
+
+template<class T>
+int Edge<T>::getFlow() const {
+    return flow;
 }
 
 /*
@@ -237,6 +267,20 @@ void Vertex<T>::setAdj(const vector<Edge<T>> &adj) {
     Vertex::adj = adj;
 }
 
+template <class T>
+vector<Edge<T>*> Vertex<T>::getIncoming() const {
+    return this->incoming;
+}
+
+template <class T>
+void Vertex<T>::setPath(Edge<T> *path) {
+    this->path = path;
+}
+
+template <class T>
+Edge<T> *Vertex<T>::getPath() const {
+    return this->path;
+}
 
 /*
  *  Adds a vertex with a given content or info (in) to a graph (this).

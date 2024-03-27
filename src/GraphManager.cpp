@@ -76,3 +76,45 @@ Vertex<Node> * GraphManager::nodeFinder(std::string code) {
         }
     }
 }
+
+void GraphManager::maxEdmondsKarp(Graph<Node> *graph, Node target) {
+
+
+}
+
+void GraphManager::maxEdmondsKarp(Graph<Node> *graph) {
+
+}
+
+void GraphManager::testAndVisit(queue<Vertex<Node> *> &queue, Edge<Pipe> *pipe, Vertex<Node> *node, int residual) {
+
+}
+
+bool GraphManager::findAugmentingPath(Graph<Node> *graph, Vertex<Node> *source, Vertex<Node> *target) {
+    return false;
+}
+
+int GraphManager::findMinResidualAlongPath(Vertex<Node> *source, Vertex<Node> *target) {
+    return 0;
+}
+
+//template <class T>
+void GraphManager::augmentFlowAlongPath(Vertex<Node> *source, Vertex<Node> *target, int f) {
+    // Traverse the augmenting path and update the flow values accordingly
+    for (auto v = target; v != source;)
+    {
+        auto e = v->getPath();
+        double flow = e->getFlow();
+        if (e->getDest() == v)
+        {
+            e->setFlow(flow + f);
+            v = e->getOrig();
+        }
+        else
+        {
+            e->setFlow(flow - f);
+            v = e->getDest();
+        }
+    }
+}
+
