@@ -73,12 +73,15 @@ template <class T>
 class Edge {
     Vertex<T> * dest;      // destination vertex
     double weight;         // edge weight
+    int flow;
 public:
     Edge(Vertex<T> *d, double w);
     Vertex<T> *getDest() const;
     void setDest(Vertex<T> *dest);
     double getWeight() const;
     void setWeight(double weight);
+    int getFlow() const;
+    void setFlow(int flow);
     friend class Graph<T>;
     friend class Vertex<T>;
 };
@@ -166,6 +169,15 @@ void Edge<T>::setWeight(double weight) {
     Edge::weight = weight;
 }
 
+template<class T>
+int Edge<T>::getFlow() const {
+    return flow;
+}
+
+template<class T>
+void Edge<T>::setFlow(int flow) {
+    Edge::flow = flow;
+}
 /*
  * Auxiliary function to find a vertex with a given content.
  */
