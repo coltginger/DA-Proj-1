@@ -27,6 +27,8 @@ enum station_type{
     Super_Node
 };
 
+/************************* Vertex  **************************/
+
 template <class T>
 class Vertex {
     T info;                // contents
@@ -48,27 +50,27 @@ public:
     void setVisited(bool v);
     bool isProcessing() const;
     void setProcessing(bool p);
+
+    const vector<Edge<T>> &getAdj() const;
     vector<Edge<T>> &getAdj();
     void setAdj(const vector<Edge<T>> &adj);
 
     int getIndegree() const;
-
     void setIndegree(int indegree);
 
     int getNum() const;
-
     void setNum(int num);
 
     int getLow() const;
-
     void setLow(int low);
 
     void setType(station_type newType);
-
     station_type getType();
 
     friend class Graph<T>;
 };
+
+/********************** Edge  ****************************/
 
 template <class T>
 class Edge {
@@ -88,12 +90,14 @@ public:
     friend class Vertex<T>;
 };
 
+/********************** Graph  ****************************/
+
 template <class T>
 class Graph {
     vector<Vertex<T> *> vertexSet;      // vertex set
-    int _index_;                        // auxiliary field
-    stack<Vertex<T>> _stack_;           // auxiliary field
-    list<list<T>> _list_sccs_;        // auxiliary field
+//    int _index_;                        // auxiliary field
+//    stack<Vertex<T>> _stack_;           // auxiliary field
+//    list<list<T>> _list_sccs_;        // auxiliary field
 
     void dfsVisit(Vertex<T> *v,  vector<T> & res) const;
     bool dfsIsDAG(Vertex<T> *v) const;
@@ -110,6 +114,8 @@ public:
     vector<T> bfs(const T &source) const;
     vector<T> topsort() const;
     bool isDAG() const;
+
+    Graph(const Graph& original): vertexSet(original.getVertexSet()) {}
 };
 
 /****************** Provided constructors and functions ********************/
