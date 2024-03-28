@@ -1,4 +1,6 @@
 #include <string>
+#include <climits>
+
 using namespace std;
 
 #ifndef DA_PROJ_1_NODE_H
@@ -19,24 +21,38 @@ public:
     Node();
 
     void setId(int id);
+
     void setCode(string code);
+
     void setReservoir(string reservoir);
+
     void setMaxDelivery(int maxDelivery);
+
     void setCity(string city);
+
     void setDemand(int demand);
+
     void setPopulation(int population);
+
     void setMunicipality(string municipality);
 
     int getId();
+
     string getCode();
+
     string getReservoir();
+
     string getMunicipality();
+
     int getMaxDelivery();
+
     string getCity();
+
     int getDemand();
+
     int getPopulation();
 
-    bool operator==(const Node& other) const;
+    bool operator==(const Node &other) const;
 };
 
 #endif //DA_PROJ_1_NODE_H
