@@ -119,28 +119,32 @@ void GraphManager::setOptimalFlows() {
         string v = parentMap.begin()->first;
         while(v!= "Super") {
             string u = parentMap[v];
-            for (auto i: _graph.getVertexSet()) {
-                for (auto j: i->getAdj()) {
-                    if (j.getDest()->getInfo().getCode() == v) {
-                        pathFlow = min(pathFlow, (j.getWeight() - j.getFlow()));
-                        v = parentMap.at(v);
-                        break;
-                    }
+            for (auto j: nodeFinder(u)->getAdj()) {
+                if (j.getDest()->getInfo().getCode() == v) {
+                    pathFlow = min(pathFlow, (j.getWeight() - j.getFlow()));
+                    break;
                 }
             }
+            v = parentMap.at(v);
         }
+
         v = parentMap.begin()->first;
         while(v!= "Super") {
             string u = parentMap[v];
-            for (auto i: _graph.getVertexSet()) {
-                for (auto j: i->getAdj()) {
-                    if (j.getDest()->getInfo().getCode() == v) {
-                        j.addFlow(pathFlow);
-                        v = parentMap.at(v);
-                        break;
+            auto parentNode = nodeFinder(u);
+            for (int j = 0; j < parentNode->getAdj().size(); j++){
+                if(parentNode->getAdj()[j].getDest()->getInfo().getCode() == v){
+                    parentNode->getAdj()[j].addFlow(pathFlow);
+                    for(int k = 0; k < parentNode->getAdj()[j].getDest()->getAdj().size(); k++){
+                        if(parentNode->getAdj()[j].getDest()->getAdj()[k].getDest()->getInfo().getCode() == u){
+                            parentNode->getAdj()[j].getDest()->getAdj()[k].setFlow(parentNode->getAdj()[j].getDest()->getAdj()[k].getWeight());
+                        }
                     }
+                    break;
                 }
             }
+
+            v = parentMap.at(v);
         }
         maxFlow += pathFlow;
         parentMap.clear();

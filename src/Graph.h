@@ -48,7 +48,7 @@ public:
     void setVisited(bool v);
     bool isProcessing() const;
     void setProcessing(bool p);
-    const vector<Edge<T>> &getAdj() const;
+    vector<Edge<T>> &getAdj();
     void setAdj(const vector<Edge<T>> &adj);
 
     int getIndegree() const;
@@ -252,7 +252,7 @@ void Vertex<T>::setVisited(bool v) {
 }
 
 template<class T>
-const vector<Edge<T>> &Vertex<T>::getAdj() const {
+vector<Edge<T>> &Vertex<T>::getAdj() {
     return adj;
 }
 
