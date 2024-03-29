@@ -23,7 +23,8 @@ template <class T> class Vertex;
 enum station_type{
     Water_Reservoir,
     Pumping_Station,
-    City
+    City,
+    Super_Node
 };
 
 template <class T>
@@ -72,16 +73,17 @@ public:
 template <class T>
 class Edge {
     Vertex<T> * dest;      // destination vertex
-    double weight;         // edge weight
+    int weight;         // edge weight
     int flow;
 public:
     Edge(Vertex<T> *d, double w);
     Vertex<T> *getDest() const;
     void setDest(Vertex<T> *dest);
-    double getWeight() const;
+    int getWeight() const;
     void setWeight(double weight);
     int getFlow() const;
     void setFlow(int flow);
+    void addFlow(int pathflow);
     friend class Graph<T>;
     friend class Vertex<T>;
 };
@@ -116,7 +118,11 @@ template <class T>
 Vertex<T>::Vertex(T in, station_type newType): info(in), type(newType) {}
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {}
+Edge<T>::Edge(Vertex<T> *d, double w) {
+    dest = d;
+    weight = w;
+    flow = 0;
+}
 
 
 template <class T>
@@ -160,7 +166,7 @@ void Edge<T>::setDest(Vertex<T> *d) {
 }
 
 template<class T>
-double Edge<T>::getWeight() const {
+int Edge<T>::getWeight() const {
     return weight;
 }
 
@@ -178,6 +184,12 @@ template<class T>
 void Edge<T>::setFlow(int flow) {
     Edge::flow = flow;
 }
+
+template<class T>
+void Edge<T>::addFlow(int pathflow) {
+    Edge::flow += pathflow;
+}
+
 /*
  * Auxiliary function to find a vertex with a given content.
  */
@@ -231,7 +243,7 @@ void Vertex<T>::setType(station_type newType) {
 
 template<class T>
 station_type Vertex<T>::getType() {
-
+    return type;
 }
 
 template <class T>

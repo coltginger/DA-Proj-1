@@ -3,6 +3,9 @@
 #include "Node.h"
 #include <vector>
 #include "Pipe.h"
+#include <limits>
+#include <algorithm>
+#include <map>
 using namespace std;
 
 #ifndef DA_PROJ_1_GRAPHMANAGER_H
@@ -21,7 +24,12 @@ public:
     void makePipes();
     void makeNodes();
     void addPipes();
+    void makeSuperSource();
 
+    string IdToCode(int id, station_type type);
+
+    void setOptimalFlows();
+    bool bfsPath(string source, map<string, string>& parent);
 
     Vertex<Node> * nodeFinder(string code);
 };

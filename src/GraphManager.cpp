@@ -4,6 +4,8 @@ GraphManager::GraphManager() {
     makeNodes();
     makePipes();
     addPipes();
+    makeSuperSource();
+    setOptimalFlows();
 }
 
 void GraphManager::makePipes() {
@@ -68,6 +70,20 @@ void GraphManager::addPipes() {
     }
 }
 
+void GraphManager::makeSuperSource() {
+    Node supeSource = Node();
+    supeSource.setCode("Super");
+    _graph.addVertex(supeSource, Super_Node);
+    auto s = nodeFinder("Super");
+
+    for (auto i : _graph.getVertexSet()){
+        if (i->getType() == Water_Reservoir){
+            _graph.addEdge(s->getInfo(), i->getInfo(), i->getInfo().getMaxDelivery());
+        }
+    }
+
+}
+
 Vertex<Node> * GraphManager::nodeFinder(std::string code) {
     string newsource;
     for(auto i : _graph.getVertexSet()){
@@ -75,4 +91,90 @@ Vertex<Node> * GraphManager::nodeFinder(std::string code) {
             return i;
         }
     }
+}
+
+string GraphManager::IdToCode(int id, station_type type) {
+    switch (type) {
+        case City:
+            return ("C_" + to_string(id));
+        case Water_Reservoir:
+            return ("R_" + to_string(id));
+        case Pumping_Station:
+            return ("PS_" + to_string(id));
+    }
+}
+
+void GraphManager::setOptimalFlows() {
+    for (auto i: _graph.getVertexSet()) {
+        for (auto j: i->getAdj()) {
+            j.setFlow(0);
+        }
+    }
+    map<string, string> parentMap;
+
+    int maxFlow = 0;
+
+    while (bfsPath("Super", parentMap)) {
+        int pathFlow = INT_MAX;
+        string v = parentMap.begin()->first;
+        while(v!= "Super") {
+            string u = parentMap[v];
+            for (auto i: _graph.getVertexSet()) {
+                for (auto j: i->getAdj()) {
+                    if (j.getDest()->getInfo().getCode() == v) {
+                        pathFlow = min(pathFlow, (j.getWeight() - j.getFlow()));
+                        v = parentMap.at(v);
+                        break;
+                    }
+                }
+            }
+        }
+        v = parentMap.begin()->first;
+        while(v!= "Super") {
+            string u = parentMap[v];
+            for (auto i: _graph.getVertexSet()) {
+                for (auto j: i->getAdj()) {
+                    if (j.getDest()->getInfo().getCode() == v) {
+                        j.addFlow(pathFlow);
+                        v = parentMap.at(v);
+                        break;
+                    }
+                }
+            }
+        }
+        maxFlow += pathFlow;
+        parentMap.clear();
+    }
+}
+
+bool GraphManager::bfsPath( std::string source, map<string, string>& parentMap) {
+    queue<Vertex<Node> *> q;
+    parentMap[source] = "";
+    for(auto i: _graph.getVertexSet()){
+        i->setVisited(false);
+    }
+    auto sourceVertex = nodeFinder(source);
+    sourceVertex->setVisited(true);
+    q.push(sourceVertex);
+
+    while(!q.empty()){
+
+        auto v = q.front();
+        string parent = v->getInfo().getCode();
+        q.pop();
+
+        for (auto e : v->getAdj()){
+
+            if (!e.getDest()->isVisited() && (e.getWeight() - e.getFlow()) > 0){
+                auto d = e.getDest();
+                q.push(d);
+                d->setVisited(true);
+
+                string child = d->getInfo().getCode();
+                parentMap[child] = parent;
+                if (d->getType() == City) return true;
+            }
+        }
+    }
+    return false;
 }
