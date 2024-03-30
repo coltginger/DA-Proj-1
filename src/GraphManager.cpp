@@ -76,15 +76,15 @@ void GraphManager::makeSuperSource() {
     _graph.addVertex(supeSource, Super_Node);
     auto s = nodeFinder("Super");
 
-    for (auto i : _graph.getVertexSet()){
-        if (i->getType() == Water_Reservoir){
+    for (auto i: _graph.getVertexSet()) {
+        if (i->getType() == Water_Reservoir) {
             _graph.addEdge(s->getInfo(), i->getInfo(), i->getInfo().getMaxDelivery());
         }
     }
 
 }
 
-Vertex<Node> * GraphManager::nodeFinder(std::string code) {
+Vertex<Node> *GraphManager::nodeFinder(std::string code) {
     string newsource;
     for (auto i: _graph.getVertexSet()) {
         if (i->getInfo().getCode() == code) {
@@ -117,7 +117,7 @@ void GraphManager::setOptimalFlows() {
     while (bfsPath("Super", parentMap)) {
         int pathFlow = INT_MAX;
         string v = parentMap.begin()->first;
-        while(v!= "Super") {
+        while (v != "Super") {
             string u = parentMap[v];
             for (auto j: nodeFinder(u)->getAdj()) {
                 if (j.getDest()->getInfo().getCode() == v) {
@@ -129,15 +129,16 @@ void GraphManager::setOptimalFlows() {
         }
 
         v = parentMap.begin()->first;
-        while(v!= "Super") {
+        while (v != "Super") {
             string u = parentMap[v];
             auto parentNode = nodeFinder(u);
-            for (int j = 0; j < parentNode->getAdj().size(); j++){
-                if(parentNode->getAdj()[j].getDest()->getInfo().getCode() == v){
+            for (int j = 0; j < parentNode->getAdj().size(); j++) {
+                if (parentNode->getAdj()[j].getDest()->getInfo().getCode() == v) {
                     parentNode->getAdj()[j].addFlow(pathFlow);
-                    for(int k = 0; k < parentNode->getAdj()[j].getDest()->getAdj().size(); k++){
-                        if(parentNode->getAdj()[j].getDest()->getAdj()[k].getDest()->getInfo().getCode() == u){
-                            parentNode->getAdj()[j].getDest()->getAdj()[k].setFlow(parentNode->getAdj()[j].getDest()->getAdj()[k].getWeight());
+                    for (int k = 0; k < parentNode->getAdj()[j].getDest()->getAdj().size(); k++) {
+                        if (parentNode->getAdj()[j].getDest()->getAdj()[k].getDest()->getInfo().getCode() == u) {
+                            parentNode->getAdj()[j].getDest()->getAdj()[k].setFlow(
+                                    parentNode->getAdj()[j].getDest()->getAdj()[k].getWeight());
                         }
                     }
                     break;
@@ -151,25 +152,25 @@ void GraphManager::setOptimalFlows() {
     }
 }
 
-bool GraphManager::bfsPath( std::string source, map<string, string>& parentMap) {
+bool GraphManager::bfsPath(std::string source, map<string, string> &parentMap) {
     queue<Vertex<Node> *> q;
     parentMap[source] = "";
-    for(auto i: _graph.getVertexSet()){
+    for (auto i: _graph.getVertexSet()) {
         i->setVisited(false);
     }
     auto sourceVertex = nodeFinder(source);
     sourceVertex->setVisited(true);
     q.push(sourceVertex);
 
-    while(!q.empty()){
+    while (!q.empty()) {
 
         auto v = q.front();
         string parent = v->getInfo().getCode();
         q.pop();
 
-        for (auto e : v->getAdj()){
+        for (auto e: v->getAdj()) {
 
-            if (!e.getDest()->isVisited() && (e.getWeight() - e.getFlow()) > 0){
+            if (!e.getDest()->isVisited() && (e.getWeight() - e.getFlow()) > 0) {
                 auto d = e.getDest();
                 q.push(d);
                 d->setVisited(true);
@@ -194,19 +195,6 @@ void GraphManager::networkStrength() {
     if (total_demand > total_capacity)
         cout << "Não é possível abastecer todas as cidades completamente mesmo com uma rede completa";
 
-    Node superSource = Node();
-    superSource.setId(0);
-    superSource.setMaxDelivery(INT_MAX);
-    superSource.setCode("R_0");
-
-    _graph.addVertex(superSource, Water_Reservoir);
-    Vertex<Node> *source = nodeFinder("R_0");
-
-    for (auto node: _graph.getVertexSet()) {
-        if (node->getType() == Water_Reservoir) {
-            _graph.addEdge(source->getInfo(), node->getInfo(), node->getInfo().getMaxDelivery());
-        }
-    }
 
 }
 

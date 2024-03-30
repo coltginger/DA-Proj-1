@@ -8,6 +8,7 @@
 #include <limits>
 #include <algorithm>
 #include <map>
+
 using namespace std;
 
 #ifndef DA_PROJ_1_GRAPHMANAGER_H
@@ -23,7 +24,9 @@ public:
     GraphManager();
 
     void makePipes();
+
     void makeNodes();
+
     void addPipes();
 
     void maxEdmondsKarp(Graph<Node> *graph, Node target);
@@ -41,14 +44,14 @@ public:
     void networkStrength();
 
     Vertex<Node> *nodeFinder(string code);
+
     void makeSuperSource();
 
     string IdToCode(int id, station_type type);
 
     void setOptimalFlows();
-    bool bfsPath(string source, map<string, string>& parent);
 
-    Vertex<Node> * nodeFinder(string code);
+    bool bfsPath(string source, map<string, string> &parent);
 };
 
 
