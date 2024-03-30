@@ -4,7 +4,6 @@
 #include <vector>
 #include "Pipe.h"
 #include <iostream>
-
 #include <limits>
 #include <algorithm>
 #include <map>
@@ -13,6 +12,7 @@ using namespace std;
 
 #ifndef DA_PROJ_1_GRAPHMANAGER_H
 #define DA_PROJ_1_GRAPHMANAGER_H
+
 
 class GraphManager {
 private:
@@ -24,9 +24,7 @@ public:
     GraphManager();
 
     void makePipes();
-
     void makeNodes();
-
     void addPipes();
 
     void maxEdmondsKarp(Graph<Node> *graph, Node target);
