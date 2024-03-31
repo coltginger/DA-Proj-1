@@ -24,19 +24,17 @@ public:
     GraphManager();
 
     void makePipes();
-
     void makeNodes();
-
     void addPipes();
-
     void makeSuperSource();
+
+    void makeSuperSink();
 
     Vertex<Node> *nodeFinder(string code);
 
     string IdToCode(int id, station_type type);
 
     void setOptimalFlows();
-
     bool bfsPath(string source, map<string, string> &parent);
 
     void networkStrength();

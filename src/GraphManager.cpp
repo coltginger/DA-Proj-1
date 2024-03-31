@@ -5,6 +5,7 @@ GraphManager::GraphManager() {
     makePipes();
     addPipes();
     makeSuperSource();
+    makeSuperSink();
     setOptimalFlows();
 }
 
@@ -76,13 +77,26 @@ void GraphManager::addPipes() {
 
 void GraphManager::makeSuperSource() {
     Node supeSource = Node();
-    supeSource.setCode("Super");
+    supeSource.setCode("SuperSource");
     _graph.addVertex(supeSource, Super_Node);
-    auto s = nodeFinder("Super");
+    auto s = nodeFinder("SuperSource");
 
     for (auto i: _graph.getVertexSet()) {
         if (i->getType() == Water_Reservoir) {
             _graph.addEdge(s->getInfo(), i->getInfo(), i->getInfo().getMaxDelivery());
+        }
+    }
+}
+
+void GraphManager::makeSuperSink() {
+    Node superSink = Node();
+    superSink.setCode("ASuperSink");
+    _graph.addVertex(superSink, Super_Node);
+    auto s = nodeFinder("ASuperSink");
+
+    for (auto i: _graph.getVertexSet()) {
+        if (i->getType() == City) {
+            _graph.addEdge(i->getInfo(), s->getInfo(), i->getInfo().getDemand());
         }
     }
 }
@@ -119,10 +133,10 @@ void GraphManager::setOptimalFlows() {
 
     int maxFlow = 0;
 
-    while (bfsPath("Super", parentMap)) {
+    while (bfsPath("SuperSource", parentMap)) {
         int pathFlow = INT_MAX;
         string v = parentMap.begin()->first;
-        while (v != "Super") {
+        while (v != "SuperSource") {
             string u = parentMap[v];
             for (auto j: nodeFinder(u)->getAdj()) {
                 if (j.getDest()->getInfo().getCode() == v) {
@@ -134,12 +148,13 @@ void GraphManager::setOptimalFlows() {
         }
 
         v = parentMap.begin()->first;
-        while (v != "Super") {
+        while (v != "SuperSource") {
             string u = parentMap[v];
             auto parentNode = nodeFinder(u);
             for (int j = 0; j < parentNode->getAdj().size(); j++) {
                 if (parentNode->getAdj()[j].getDest()->getInfo().getCode() == v) {
                     parentNode->getAdj()[j].addFlow(pathFlow);
+                    if (parentNode->getType() == City) cout << "added flow to city" << endl;
                     for (int k = 0; k < parentNode->getAdj()[j].getDest()->getAdj().size(); k++) {
                         if (parentNode->getAdj()[j].getDest()->getAdj()[k].getDest()->getInfo().getCode() == u) {
                             parentNode->getAdj()[j].getDest()->getAdj()[k].setFlow(
@@ -182,7 +197,7 @@ bool GraphManager::bfsPath(std::string source, map<string, string> &parentMap) {
 
                 string child = d->getInfo().getCode();
                 parentMap[child] = parent;
-                if (d->getType() == City) return true;
+                if (child == "ASuperSink") return true;
             }
         }
     }
