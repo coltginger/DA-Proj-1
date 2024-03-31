@@ -8,6 +8,10 @@ GraphManager::GraphManager() {
     setOptimalFlows();
 }
 
+Graph<Node> GraphManager::getGraph() {
+    return _graph;
+}
+
 void GraphManager::makePipes() {
     auto pipeinfo = _vectors.getPipesFile();
     for (int i = 0; i < pipeinfo.size(); i = i + 4) {
@@ -81,7 +85,6 @@ void GraphManager::makeSuperSource() {
             _graph.addEdge(s->getInfo(), i->getInfo(), i->getInfo().getMaxDelivery());
         }
     }
-
 }
 
 Vertex<Node> *GraphManager::nodeFinder(std::string code) {
@@ -91,6 +94,7 @@ Vertex<Node> *GraphManager::nodeFinder(std::string code) {
             return i;
         }
     }
+    return nullptr;
 }
 
 string GraphManager::IdToCode(int id, station_type type) {
@@ -102,6 +106,7 @@ string GraphManager::IdToCode(int id, station_type type) {
         case Pumping_Station:
             return ("PS_" + to_string(id));
     }
+    return "Type not found";
 }
 
 void GraphManager::setOptimalFlows() {
@@ -184,19 +189,52 @@ bool GraphManager::bfsPath(std::string source, map<string, string> &parentMap) {
     return false;
 }
 
+void supplyUpdater(vector<tuple<string, int, int>> &vector, const string &cityCode, int supply, int demand) {
+    for (auto &triplet: vector) {
+        if (get<0>(triplet) == cityCode) {
+            get<1>(triplet) = get<1>(triplet) + supply;
+            return;
+        } else continue;
+    }
+    vector.emplace_back(cityCode, supply, demand);
+}
+
+
 void GraphManager::networkStrength() {
     long total_capacity = 0;
     long total_demand = 0;
+    vector<tuple<string, int, int>> underservedCities;
 
-    for (int i = 4; i < _vectors.getReservoirsFile().size(); i + 5)
+    for (int i = 4; i < _vectors.getReservoirsFile().size(); i = i + 5)
         total_capacity += stoi(_vectors.getReservoirsFile()[i]);
-    for (int i = 3; i < _vectors.getCitiesFile().size(); i + 5)
+    for (int i = 3; i < _vectors.getCitiesFile().size(); i = i + 5)
         total_demand += stoi(_vectors.getCitiesFile()[i]);
     if (total_demand > total_capacity)
-        cout << "Não é possível abastecer todas as cidades completamente mesmo com uma rede completa";
+        cout << "Não é possível abastecer todas as cidades completamente mesmo sem limites de caudal";
 
+    for (auto node: _graph.getVertexSet()) {
+        if (node->getType() != City) {
+            for (auto pipe: node->getAdj())
+                if (pipe.getDest()->getType() == City) {
+                    supplyUpdater(underservedCities, pipe.getDest()->getInfo().getCode(), pipe.getFlow(),
+                                  pipe.getDest()->getInfo().getDemand());
+                }
+        }
+    }
 
+    bool deficient = false;
+    for (const auto &underserved: underservedCities) {
+        int deficit = get<2>(underserved) - get<1>(underserved);
+        if (deficit > 0) {
+            if (!deficient) {
+                deficient = true;
+                cout << "Cidades com defice de agua:" << endl;
+                cout << get<0>(underserved) << ": " << deficit << endl;
+            } else cout << get<0>(underserved) << ": " << deficit << endl;
+        }
+    }
 }
+
 
 
 

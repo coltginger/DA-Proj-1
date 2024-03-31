@@ -4,13 +4,17 @@
 using namespace std;
 
 App::App() {}
+
 void App::run(){
     bool STOP = false;
 
     while(!STOP){
-        cout << "1. Max amount of water that can reach each or a specific city. " << endl
-             << "0. Close the program." << endl
-             << "Please select an option (number): ";
+        cout << "Please select an option (number): " << endl <<
+             "1. Max amount of water that can reach each or a specific city. " << endl <<
+             "2. Verify satisfiability of water needs. " << endl <<
+             "3. " << endl <<
+             "0. Close the program." << endl;
+
 
         int option;
         int a, id;
@@ -26,12 +30,22 @@ void App::run(){
                      << "2. Specific city." << endl
                      << "Please select an option: "<< endl;
                 cin >> a;
+                if (a == 1) {
+                    /*  for (auto city: _graphManager.getGraph().getVertexSet()) {
+                          if (city->getType() == City) {
+  */
+                    //}
+                    //}
+                }
                 if(a == 2){
                     cout << endl << "City ID: " << endl;
                     cin >> id;
                 }
                 break;
 
+            case 2:
+                _graphManager.networkStrength();
+                break;
         }
     }
-};
+}

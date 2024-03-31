@@ -113,7 +113,7 @@ public:
     vector<T> topsort() const;
     bool isDAG() const;
 
-    Graph(const Graph& original): vertexSet(original.getVertexSet()) {}
+    //Graph(const Graph& original): vertexSet(original.getVertexSet()) {}
 };
 
 /****************** Provided constructors and functions ********************/
