@@ -154,7 +154,6 @@ void GraphManager::setOptimalFlows() {
             for (int j = 0; j < parentNode->getAdj().size(); j++) {
                 if (parentNode->getAdj()[j].getDest()->getInfo().getCode() == v) {
                     parentNode->getAdj()[j].addFlow(pathFlow);
-                    if (parentNode->getType() == City) cout << "added flow to city" << endl;
                     for (int k = 0; k < parentNode->getAdj()[j].getDest()->getAdj().size(); k++) {
                         if (parentNode->getAdj()[j].getDest()->getAdj()[k].getDest()->getInfo().getCode() == u) {
                             parentNode->getAdj()[j].getDest()->getAdj()[k].setFlow(
