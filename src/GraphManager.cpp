@@ -67,11 +67,10 @@ void GraphManager::addPipes() {
         Vertex<Node> *target = nodeFinder(_pipes[i].getPointB());
 
         int weight = _pipes[i].getCapacity();
-        _graph.addEdge(source->getInfo(), target->getInfo(), weight);
-
         if (_pipes[1].getDirection() == 0) {
-            _graph.addEdge(target->getInfo(), source->getInfo(), weight);
+            _graph.addBidirectionalEdge(source->getInfo(), target->getInfo(), weight);
         }
+        else _graph.addEdge(source->getInfo(), target->getInfo(), weight);
     }
 }
 
@@ -126,7 +125,7 @@ string GraphManager::IdToCode(int id, station_type type) {
 void GraphManager::setOptimalFlows() {
     for (auto i: _graph.getVertexSet()) {
         for (auto j: i->getAdj()) {
-            j.setFlow(0);
+            j->setFlow(0);
         }
     }
     map<string, string> parentMap;
@@ -139,8 +138,8 @@ void GraphManager::setOptimalFlows() {
         while (v != "SuperSource") {
             string u = parentMap[v];
             for (auto j: nodeFinder(u)->getAdj()) {
-                if (j.getDest()->getInfo().getCode() == v) {
-                    pathFlow = min(pathFlow, (j.getWeight() - j.getFlow()));
+                if (j->getDest()->getInfo().getCode() == v) {
+                    pathFlow = min(pathFlow, (j->getWeight() - j->getFlow()));
                     break;
                 }
             }
@@ -152,12 +151,12 @@ void GraphManager::setOptimalFlows() {
             string u = parentMap[v];
             auto parentNode = nodeFinder(u);
             for (int j = 0; j < parentNode->getAdj().size(); j++) {
-                if (parentNode->getAdj()[j].getDest()->getInfo().getCode() == v) {
-                    parentNode->getAdj()[j].addFlow(pathFlow);
-                    for (int k = 0; k < parentNode->getAdj()[j].getDest()->getAdj().size(); k++) {
-                        if (parentNode->getAdj()[j].getDest()->getAdj()[k].getDest()->getInfo().getCode() == u) {
-                            parentNode->getAdj()[j].getDest()->getAdj()[k].setFlow(
-                                    parentNode->getAdj()[j].getDest()->getAdj()[k].getWeight());
+                if (parentNode->getAdj()[j]->getDest()->getInfo().getCode() == v) {
+                    parentNode->getAdj()[j]->addFlow(pathFlow);
+                    for (int k = 0; k < parentNode->getAdj()[j]->getDest()->getAdj().size(); k++) {
+                        if (parentNode->getAdj()[j]->getDest()->getAdj()[k]->getDest()->getInfo().getCode() == u) {
+                            parentNode->getAdj()[j]->getDest()->getAdj()[k]->setFlow(
+                                    parentNode->getAdj()[j]->getDest()->getAdj()[k]->getWeight());
                         }
                     }
                     break;
@@ -189,8 +188,8 @@ bool GraphManager::bfsPath(std::string source, map<string, string> &parentMap) {
 
         for (auto e: v->getAdj()) {
 
-            if (!e.getDest()->isVisited() && (e.getWeight() - e.getFlow()) > 0) {
-                auto d = e.getDest();
+            if (!e->getDest()->isVisited() && (e->getWeight() - e->getFlow()) > 0) {
+                auto d = e->getDest();
                 q.push(d);
                 d->setVisited(true);
 
@@ -229,9 +228,9 @@ void GraphManager::networkStrength() {
     for (auto node: _graph.getVertexSet()) {
         if (node->getType() != City) {
             for (auto pipe: node->getAdj())
-                if (pipe.getDest()->getType() == City) {
-                    supplyUpdater(underservedCities, pipe.getDest()->getInfo().getCode(), pipe.getFlow(),
-                                  pipe.getDest()->getInfo().getDemand());
+                if (pipe->getDest()->getType() == City) {
+                    supplyUpdater(underservedCities, pipe->getDest()->getInfo().getCode(), pipe->getFlow(),
+                                  pipe->getDest()->getInfo().getDemand());
                 }
         }
     }

@@ -31,8 +31,10 @@ enum station_type{
 
 template <class T>
 class Vertex {
+
     T info;                // contents
-    vector<Edge<T> > adj;  // list of outgoing edges
+    vector<Edge<T> *> incoming; //list of incoming edges
+    vector<Edge<T> *> adj;  // list of outgoing edges
     bool visited;          // auxiliary field
     bool processing;       // auxiliary field
     int indegree;          // auxiliary field
@@ -40,8 +42,6 @@ class Vertex {
     int low;               // auxiliary field
     station_type type;     // auxiliary field
 
-    void addEdge(Vertex<T> *dest, double w);
-    bool removeEdgeTo(Vertex<T> *d);
 public:
     Vertex(T in, station_type newType);
     T getInfo() const;
@@ -51,8 +51,12 @@ public:
     bool isProcessing() const;
     void setProcessing(bool p);
 
-    vector<Edge<T>> &getAdj();
+    vector<Edge<T> *> getIncoming() const;
+    vector<Edge<T> *> getAdj();
     void setAdj(const vector<Edge<T>> &adj);
+    Edge<T> * addEdge(Vertex<T> *dest, double w);
+    //void addEdge(Vertex<T> *dest, double w);
+    bool removeEdgeTo(Vertex<T> *d);
     int getIndegree() const;
     void setIndegree(int indegree);
 
@@ -72,18 +76,29 @@ public:
 
 template <class T>
 class Edge {
-    Vertex<T> * dest;      // destination vertex
+    Vertex<T> *orig;       // origin vertex
+    Vertex<T> *dest;      // destination vertex
     int weight;         // edge weight
     int flow;
+    Edge<T> *reverse = NULL;
+
 public:
-    Edge(Vertex<T> *d, double w);
+    Edge(Vertex<T> *dest, double w);
+    Edge(Vertex<T> *orig, Vertex<T> *dest, double w);
+
+    Vertex<T> *getOrig() const;
     Vertex<T> *getDest() const;
+    Edge<T> *getReverse() const;
+    void setOrig(Vertex<T> *orig);
     void setDest(Vertex<T> *dest);
+    void setReverse(Edge<T> *reverse);
     int getWeight() const;
     void setWeight(double weight);
     int getFlow() const;
     void setFlow(int flow);
     void addFlow(int pathflow);
+
+
     friend class Graph<T>;
     friend class Vertex<T>;
 };
@@ -92,6 +107,7 @@ public:
 
 template <class T>
 class Graph {
+
     vector<Vertex<T> *> vertexSet;      // vertex set
 //    int _index_;                        // auxiliary field
 //    stack<Vertex<T>> _stack_;           // auxiliary field
@@ -100,13 +116,15 @@ class Graph {
     void dfsVisit(Vertex<T> *v,  vector<T> & res) const;
     bool dfsIsDAG(Vertex<T> *v) const;
 public:
-    Vertex<T> *findVertex(const T &in) const;
+    vector<Vertex<T> *> getVertexSet() const;
     int getNumVertex() const;
+    Vertex<T> *findVertex(const T &in) const;
     bool addVertex(const T &in, const station_type &type);
     bool removeVertex(const T &in);
     bool addEdge(const T &sourc, const T &dest, double w);
     bool removeEdge(const T &sourc, const T &dest);
-    vector<Vertex<T> * > getVertexSet() const;
+    bool addBidirectionalEdge(const T &sourc, const T &dest, double w);
+
     vector<T> dfs() const;
     vector<T> dfs(const T & source) const;
     vector<T> bfs(const T &source) const;
@@ -121,6 +139,7 @@ public:
 template <class T>
 Vertex<T>::Vertex(T in, station_type newType): info(in), type(newType) {}
 
+
 template <class T>
 Edge<T>::Edge(Vertex<T> *d, double w) {
     dest = d;
@@ -128,6 +147,13 @@ Edge<T>::Edge(Vertex<T> *d, double w) {
     flow = 0;
 }
 
+template <class T>
+Edge<T>::Edge(Vertex<T> *o, Vertex<T> *d, double w) {
+    orig = o;
+    dest = d;
+    weight = w;
+    flow = 0;
+};
 
 template <class T>
 int Graph<T>::getNumVertex() const {
@@ -160,6 +186,16 @@ void Vertex<T>::setProcessing(bool p) {
 }
 
 template<class T>
+Vertex<T> *Edge<T>::getOrig() const {
+    return orig;
+}
+
+template<class T>
+void Edge<T>::setOrig(Vertex<T> *o) {
+    Edge::orig = o;
+}
+
+template<class T>
 Vertex<T> *Edge<T>::getDest() const {
     return dest;
 }
@@ -170,13 +206,19 @@ void Edge<T>::setDest(Vertex<T> *d) {
 }
 
 template<class T>
+Edge<T> *Edge<T>::getReverse() const { return reverse;}
+
+template<class T>
+void Edge<T>::setReverse(Edge<T> *rev) {Edge:reverse = rev;}
+
+template<class T>
 int Edge<T>::getWeight() const {
     return weight;
 }
 
 template<class T>
-void Edge<T>::setWeight(double weight) {
-    Edge::weight = weight;
+void Edge<T>::setWeight(double w) {
+    Edge::weight = w;
 }
 
 template<class T>
@@ -185,8 +227,8 @@ int Edge<T>::getFlow() const {
 }
 
 template<class T>
-void Edge<T>::setFlow(int flow) {
-    Edge::flow = flow;
+void Edge<T>::setFlow(int f) {
+    Edge::flow = f;
 }
 
 template<class T>
@@ -216,8 +258,8 @@ int Vertex<T>::getIndegree() const {
 }
 
 template<class T>
-void Vertex<T>::setIndegree(int indegree) {
-    Vertex::indegree = indegree;
+void Vertex<T>::setIndegree(int indeg) {
+    Vertex::indegree = indeg;
 }
 
 template<class T>
@@ -226,8 +268,8 @@ int Vertex<T>::getNum() const {
 }
 
 template<class T>
-void Vertex<T>::setNum(int num) {
-    Vertex::num = num;
+void Vertex<T>::setNum(int n) {
+    Vertex::num = n;
 }
 
 template<class T>
@@ -236,8 +278,8 @@ int Vertex<T>::getLow() const {
 }
 
 template<class T>
-void Vertex<T>::setLow(int low) {
-    Vertex::low = low;
+void Vertex<T>::setLow(int l) {
+    Vertex::low = l;
 }
 
 template<class T>
@@ -256,7 +298,13 @@ void Vertex<T>::setVisited(bool v) {
 }
 
 template<class T>
-vector<Edge<T>> &Vertex<T>::getAdj() {
+vector<Edge<T> *> Vertex<T>::getIncoming() const {
+    return incoming;
+}
+
+
+template<class T>
+vector<Edge<T>*> Vertex<T>::getAdj() {
     return adj;
 }
 
@@ -278,7 +326,6 @@ bool Graph<T>::addVertex(const T &in, const station_type &type) {
     return true;
 }
 
-
 /*
  * Adds an edge to a graph (this), given the contents of the source and
  * destination vertices and the edge weight (w).
@@ -297,12 +344,27 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 /*
  * Auxiliary function to add an outgoing edge to a vertex (this),
  * with a given destination vertex (d) and edge weight (w).
- */
+*/
 template <class T>
-void Vertex<T>::addEdge(Vertex<T> *d, double w) {
-    adj.push_back(Edge<T>(d, w));
+Edge<T> *Vertex<T>::addEdge(Vertex<T> *d, double w) {
+    auto newEdge = new Edge<T>(this, d, w);
+    adj.push_back(newEdge);
+    d->incoming.push_back(newEdge);
+    return newEdge;
 }
 
+template <class T>
+bool Graph<T>::addBidirectionalEdge(const T &sourc, const T &dest, double w) {
+    auto v1 = findVertex(sourc);
+    auto v2 = findVertex(dest);
+    if (v1 == NULL || v2 == NULL)
+        return false;
+    auto e1 = v1->addEdge(v2, w);
+    auto e2 = v2->addEdge(v1, w);
+    e1->setReverse(e2);
+    e2->setReverse(e1);
+    return true;
+}
 
 /*
  * Removes an edge from a graph (this).
