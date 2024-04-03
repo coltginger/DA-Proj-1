@@ -7,6 +7,7 @@ GraphManager::GraphManager() {
     makeSuperSource();
     makeSuperSink();
     setOptimalFlows();
+    averageFlowRatio = averageNetworkFlowRatio();
 }
 
 Graph<Node> GraphManager::getGraph() {
@@ -100,7 +101,7 @@ void GraphManager::makeSuperSink() {
     }
 }
 
-Vertex<Node> *GraphManager::nodeFinder(std::string code) {
+Vertex<Node> *GraphManager::nodeFinder(const string& code) {
     string newsource;
     for (auto i: _graph.getVertexSet()) {
         if (i->getInfo().getCode() == code) {
@@ -170,7 +171,7 @@ void GraphManager::setOptimalFlows() {
     }
 }
 
-bool GraphManager::bfsPath(std::string source, map<string, string> &parentMap) {
+bool GraphManager::bfsPath(const string& source, map<string, string> &parentMap) {
     queue<Vertex<Node> *> q;
     parentMap[source] = "";
     for (auto i: _graph.getVertexSet()) {
@@ -247,6 +248,39 @@ void GraphManager::networkStrength() {
         }
     }
 }
+
+int GraphManager::averageNetworkFlowRatio() {
+    vector<float> flowRatios;
+   float sumRatios = 0;
+
+    for (auto node : _graph.getVertexSet()) {
+        if (node->getType() == Super_Node) continue;
+        for (auto edge : node->getAdj()) {
+            flowRatios.push_back((float)edge->getFlow()/edge->getWeight());
+        }
+    }
+
+    for (float ratio : flowRatios) {sumRatios += ratio;}
+    return sumRatios/flowRatios.size()*100;
+}
+
+int GraphManager::averageCityFlowRatio(const string& code) {
+    vector<float> flowRatios;
+    float sumRatios = 0;
+    for (auto edge : nodeFinder(code)->getIncoming()) {
+        flowRatios.push_back((float)edge->getFlow()/edge->getWeight());
+    }
+
+    for (float ratio : flowRatios) {sumRatios += ratio;}
+    return sumRatios/flowRatios.size()*100;
+}
+
+void GraphManager::flowRatioBalancer() {
+
+
+}
+
+
 
 
 
