@@ -19,6 +19,7 @@ private:
     Graph<Node> _graph;
     FileManager _vectors;
     vector<Pipe> _pipes;
+    int averageFlowRatio;
 
 public:
     GraphManager();
@@ -27,17 +28,19 @@ public:
     void makeNodes();
     void addPipes();
     void makeSuperSource();
-
     void makeSuperSink();
 
-    Vertex<Node> *nodeFinder(string code);
+    Vertex<Node> *nodeFinder(const string& code);
 
     string IdToCode(int id, station_type type);
 
     void setOptimalFlows();
-    bool bfsPath(string source, map<string, string> &parent);
+    bool bfsPath(const string& source, map<string, string> &parent);
 
     void networkStrength();
+    int averageNetworkFlowRatio();
+    int averageCityFlowRatio(const string& code);
+    void flowRatioBalancer();
 
     Graph<Node> getGraph();
 };
