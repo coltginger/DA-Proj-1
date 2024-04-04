@@ -43,6 +43,7 @@ public:
     void flowRatioBalancer();
 
     void removeSOrRNode(string code);
+    void removePipe(string code);
     void makeNodesWithoutNode(string code);
     void makePipesWithoutNodePipes(string code);
     void makePipesWithoutPipe(string origin, string dest);

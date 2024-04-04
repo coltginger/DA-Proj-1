@@ -11,6 +11,8 @@ private:
 public:
     App();
     void run();
+    bool removeOption();
+    string toUpperString(string &str);
 };
 
 

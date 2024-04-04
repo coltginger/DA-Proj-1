@@ -12,7 +12,8 @@ void App::run(){
         cout << "Please select an option (number): " << endl <<
              "1. Max amount of water that can reach each or a specific city. " << endl <<
              "2. Verify satisfiability of water needs. " << endl <<
-             "3. " << endl <<
+             "3. Remove a Reservoire or Station" << endl <<
+             "4. Remove a Pipe" << endl <<
              "0. Close the program." << endl;
 
 
@@ -46,21 +47,95 @@ void App::run(){
             case 2:
                 _graphManager.networkStrength();
                 break;
+            case 3:
+                STOP = removeOption();
+                break;
+            case 4:
+                STOP =
         }
     }
 }
 
-/*
- * TODO: Auxiliar func to do toUpper for string
-int main() {
+bool App::removeOption() {
+    bool STOP = false;
+
+    cout << endl << "1.Remove Reservoir" << endl
+         << "2.Remove Station" << endl
+         << "b. Go back" << endl
+         << "0. Close the program." << endl
+         << "Please select an option: " << endl;
+
+    char a;
+    string code;
+    cin >> a;
+
+
+    while(!STOP) {
+
+        switch (a) {
+            case '1':
+                cout << endl << "Input the code of the reservoir:" << endl;
+
+                cin >> code;
+
+                if(toUpperString(code).substr(0,1) != "R"){
+                    cout << endl << "Wrong code format for reservoires." <<endl
+                    << "Please input a new code." << endl;
+                    a = 1;
+                    break;
+                }
+                else {
+                    _graphManager.removeSOrRNode(code);
+                    // analisar flow e printar diferenças;
+                    STOP = true;
+                }
+
+                break;
+            case '2':
+                cout << endl << "Input the code of the station:" << endl;
+
+                cin >> code;
+
+                if(toUpperString(code).substr(0,1) != "PS"){
+                    cout << endl << "Wrong code format for station." <<endl
+                         << "Please input a new code." << endl;
+                    a = 2;
+                    break;
+                }
+                else {
+                    _graphManager.removePipe(code);
+                    // analisar flow e printar diferenças;
+                    STOP = true;
+                }
+
+                break;
+            case 'b':
+                STOP = true;
+                break;
+            case  '0':
+                return true;
+                break;
+            default:
+                cout << endl << "Invalid input." << endl
+                << "Please try again." << endl;
+                return removeOption();
+        }
+    }
+
+    return false;
+}
+
+bool App::pipe(){
+
+}
+
+
+
+string App::toUpperString(string &str) {
     string newString; // Corrected declaration of newString
-    string str = "asvs"; // Corrected variable name from string to str
     for (char ch : str) { // Corrected syntax of for loop
         // convert 'a' to uppercase
         newString += toupper(ch);
     }
-
-    cout << newString;
-
-    return 0;
-}*/
+    return newString;
+}
