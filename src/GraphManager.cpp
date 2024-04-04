@@ -249,6 +249,17 @@ void GraphManager::networkStrength() {
     }
 }
 
+void GraphManager::varianceHeuristic() {
+
+}
+
+void GraphManager::removeReservoir(string code){}
+    
+
+void GraphManager::removePumpingStation(string code){}
+
+void GraphManager::removePipe(string origin, string dest){}
+
 
 
 
