@@ -42,6 +42,12 @@ public:
     int averageCityFlowRatio(const string& code);
     void flowRatioBalancer();
 
+    void removeSOrRNode(string code);
+    void makeNodesWithoutNode(string code);
+    void makePipesWithoutNodePipes(string code);
+    void makePipesWithoutPipe(string origin, string dest);
+
+
     Graph<Node> getGraph();
 };
 

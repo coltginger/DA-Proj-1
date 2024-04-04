@@ -49,3 +49,18 @@ void App::run(){
         }
     }
 }
+
+/*
+ * TODO: Auxiliar func to do toUpper for string
+int main() {
+    string newString; // Corrected declaration of newString
+    string str = "asvs"; // Corrected variable name from string to str
+    for (char ch : str) { // Corrected syntax of for loop
+        // convert 'a' to uppercase
+        newString += toupper(ch);
+    }
+
+    cout << newString;
+
+    return 0;
+}*/

@@ -254,15 +254,6 @@ void GraphManager::varianceHeuristic() {
 
 }
 
-void GraphManager::removeReservoir(string code){}
-    
-
-void GraphManager::removePumpingStation(string code){}
-
-void GraphManager::removePipe(string origin, string dest){}
-
-
-
 int GraphManager::averageNetworkFlowRatio() {
     vector<float> flowRatios;
    float sumRatios = 0;
@@ -293,6 +284,95 @@ void GraphManager::flowRatioBalancer() {
 
 
 }
+
+void GraphManager::removeSOrRNode(string code){
+    makeNodesWithoutNode(code);
+    makePipesWithoutNodePipes(code);
+    addPipes();
+    makeSuperSource();
+    makeSuperSink();
+    setOptimalFlows();
+    averageFlowRatio = averageNetworkFlowRatio();
+}
+
+void GraphManager::removePipe(string code){
+    makeNodes();
+    makePipesWithoutPipe(code);
+    addPipes();
+    makeSuperSource();
+    makeSuperSink();
+    setOptimalFlows();
+    averageFlowRatio = averageNetworkFlowRatio();
+}
+
+void GraphManager::makeNodesWithoutNode(string code){
+    auto stationinfo = _vectors.getStationsFile();
+    auto reservoirinfo = _vectors.getReservoirsFile();
+    auto cityinfo = _vectors.getCitiesFile();
+
+    for (int i = 0; i < cityinfo.size(); i = i + 5) {
+        Node newNode = Node();
+        newNode.setCity(cityinfo[i]);
+        newNode.setId(stoi(cityinfo[i + 1]));
+        newNode.setCode(cityinfo[i + 2]);
+        newNode.setDemand(stoi(cityinfo[i + 3]));
+        newNode.setPopulation(stoi(cityinfo[i + 4]));
+
+        _graph.addVertex(newNode, City);
+    }
+
+    for (int i = 0; i < stationinfo.size(); i = i + 2) {
+        if(stationinfo[i+1] != code) {
+            Node newNode = Node();
+            newNode.setId(stoi(stationinfo[i]));
+            newNode.setCode(stationinfo[i + 1]);
+
+            _graph.addVertex(newNode, Pumping_Station);
+        }
+    }
+
+    for (int i = 0; i < reservoirinfo.size(); i = i + 5) {
+        if (reservoirinfo[i+3] != code ) {
+            Node newNode = Node();
+            newNode.setReservoir(reservoirinfo[i]);
+            newNode.setMunicipality(reservoirinfo[i + 1]);
+            newNode.setId(stoi(reservoirinfo[i + 2]));
+            newNode.setCode(reservoirinfo[i + 3]);
+            newNode.setMaxDelivery(stoi(reservoirinfo[i + 4]));
+
+            _graph.addVertex(newNode, Water_Reservoir);
+        }
+    }
+}
+
+void GraphManager::makePipesWithoutNodePipes(string code){
+    auto pipeinfo = _vectors.getPipesFile();
+    for (int i = 0; i < pipeinfo.size(); i = i + 4) {
+        string pointA = pipeinfo[i];
+        string pointB = pipeinfo[i + 1];
+        if(pointA != code and pointB != code) {
+            int capacity = stoi(pipeinfo[i + 2]);
+            int direction = stoi(pipeinfo[i + 3]);
+            Pipe newPipe = Pipe(pointA, pointB, capacity, direction);
+            _pipes.push_back(newPipe);
+        }
+    }
+}
+
+void GraphManager::makePipesWithoutPipe(string origin, string dest){
+    auto pipeinfo = _vectors.getPipesFile();
+    for (int i = 0; i < pipeinfo.size(); i = i + 4) {
+        string pointA = pipeinfo[i];
+        string pointB = pipeinfo[i + 1];
+        if(pointA != origin and pointB != dest) {
+            int capacity = stoi(pipeinfo[i + 2]);
+            int direction = stoi(pipeinfo[i + 3]);
+            Pipe newPipe = Pipe(pointA, pointB, capacity, direction);
+            _pipes.push_back(newPipe);
+        }
+    }
+}
+
 
 
 
