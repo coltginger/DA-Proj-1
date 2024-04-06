@@ -236,7 +236,7 @@ void GraphManager::networkStrength() {
     for (int i = 3; i < _vectors.getCitiesFile().size(); i = i + 5)
         total_demand += stoi(_vectors.getCitiesFile()[i]);
     if (total_demand > total_capacity)
-        cout << "Não é possível abastecer todas as cidades completamente mesmo sem limites de caudal";
+        cout << "It is not possible to supply all cities completely even without flow limits";
 
     for (auto node: _graph.getVertexSet()) {
         if (node->getType() == City) {
@@ -250,7 +250,7 @@ void GraphManager::networkStrength() {
         if (deficit > 0) {
             if (!deficient) {
                 deficient = true;
-                cout << "Cidades com defice de agua:" << endl;
+                cout << "Cities with water deficit: " << endl;
                 cout << get<0>(underserved) << ": " << deficit << endl;
             } else cout << get<0>(underserved) << ": " << deficit << endl;
         }
@@ -409,6 +409,10 @@ void GraphManager::removeNodeAddNode(string code){
         _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
     }
 
+    setOptimalFlows("SuperSource", "ASuperSink");
+
+    cout << endl << endl;
+
 }
 
 void GraphManager::removePipeAddPipe(string origin, string dest){
@@ -437,4 +441,7 @@ void GraphManager::removePipeAddPipe(string origin, string dest){
 
     _graph.addEdge(originNode->getInfo(),destNode->getInfo(), weight);
 
+    setOptimalFlows("SuperSource", "ASuperSink");
+
+    cout << endl << endl;
 }

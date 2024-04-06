@@ -52,6 +52,7 @@ public:
     void removePipeAddPipe(string orig, string dest);
 
     Graph<Node> getGraph();
+    FileManager getFileManager();
 };
 
 

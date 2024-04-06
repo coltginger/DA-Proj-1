@@ -5,33 +5,21 @@ using namespace std;
 
 App::App() {}
 
-void clearScreen() {
-    system("clear");
-}
-
 void App::run() {
     bool STOP = false;
 
     while (!STOP) {
-        clearScreen();
         cout << "Welcome to the Water Management System!" << endl <<
-             "Please select an option (number): " << endl <<
              "1. Max amount of water that can reach each or a specific city. " << endl <<
              "2. Verify satisfiability of water needs. " << endl <<
              "3. Rebalance the network" << endl <<
              "4. Remove an element from the network (Reservoir, Station or Pipe).\" << endl; " << endl <<
-             "0. Close the program." << endl;
+             "0. Close the program." << endl <<
+             "Please select an option (number): ";
 
         int option, a, id;
+        string enter;
         cin >> option;
-
-        // Handle invalid input
-        if (cin.fail()) {
-            cout << "Invalid input. Please enter a valid option." << endl;
-            cin.clear(); // Clear error flag
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
-            continue;
-        }
 
         switch (option) {
             case 0:
@@ -43,7 +31,15 @@ void App::run() {
                      << "Please select an option: "<< endl;
                 cin >> a;
                 if (a == 1) {
+                    for (auto i : _graphManager.getGraph().getVertexSet()){
+                        if (i->getType() == City){
+                            _graphManager.writeFlow(i->getInfo().getCode());
+                        }
+                    }
 
+                    cout << endl << "Press enter to continue." << endl;
+                    cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                    cin.get();
                 }
                 else if (a==2) {
                     cout << endl << "Please write the city ID: ";
@@ -51,13 +47,25 @@ void App::run() {
                     cout << endl;
                     auto cityCode = _graphManager.IdToCode(id, City);
                     _graphManager.writeFlow(cityCode);
+
+                    cout << endl << "Press enter to continue." << endl;
+                    cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                    cin.get();
                 }
                 break;
             case 2:
                 _graphManager.networkStrength();
+
+                cout << endl << "Press enter to continue." << endl;
+                cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                cin.get();
                 break;
             case 3:
                 _graphManager.flowRatioBalancer();
+
+                cout << endl << "Press enter to continue." << endl;
+                cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                cin.get();
                 break;
             case 4:
                 removeOption();
@@ -70,7 +78,6 @@ void App::run() {
 }
 
 void App::removeOption() {
-    clearScreen();
     bool STOP = false;
 
     while (!STOP) {
@@ -107,26 +114,25 @@ void App::removeOption() {
 }
 
 void App::removePumpingStation() {
-    clearScreen();
     bool STOP = false;
 
     string code;
 
     while(!STOP){
-        cout << endl << "Input the code of the reservoir:" << endl;
+        cout << endl << "Input the code of the pumping station:" << endl;
         cout << "Input 0 to exit." << endl;
 
         cin >> code;
 
         if(code == "0"){
-            exit(0); // Exit the program
+            STOP = true; // Exit the program
         }
         else if(_graphManager.nodeFinder(code) == nullptr){
             cout << endl << "No node found with given code." << endl << endl;
         }
         else {
             if (toUpperString(code).substr(0, 3) != "PS_") {
-                cout << endl << "Wrong code format for reservoires." << endl
+                cout << endl << "Wrong code format for pumping stations." << endl
                      << "Please input a new code." << endl;
             }
             else {
@@ -138,7 +144,6 @@ void App::removePumpingStation() {
 }
 
 void App::removeReservoire() {
-    clearScreen();
     bool STOP = false;
 
     string code;
@@ -150,7 +155,7 @@ void App::removeReservoire() {
         cin >> code;
 
         if(code == "0"){
-            exit(0); // Exit the program
+            STOP = true; // Exit the program
         }
         else if(_graphManager.nodeFinder(code) == nullptr){
             cout << endl << "No node found with given code." << endl << endl;
@@ -169,7 +174,6 @@ void App::removeReservoire() {
 }
 
 void App::removePiping() {
-    clearScreen();
     bool STOP = false;
 
     string start, dest;
@@ -182,7 +186,7 @@ void App::removePiping() {
         cin >> start;
 
         if(start == "0"){
-            exit(0); // Exit the program
+            STOP = true; // Exit the program
         }
         else if(_graphManager.nodeFinder(start) == nullptr){
             cout << endl << "No node found with given code." << endl << endl;
@@ -198,7 +202,7 @@ void App::removePiping() {
             }
 
             if(dest == "0"){
-                exit(0); // Exit the program
+                STOP = true; // Exit the program
             }
             else if (!valid_edge){
                 cout <<endl << "No node found with given code. " << endl << endl;
