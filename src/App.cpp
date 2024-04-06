@@ -88,6 +88,7 @@ void App::removeOption() {
                 break;
             case '2':
                 removePumpingStation();
+                break;
             case '3':
                 removePiping();
                 break;
@@ -116,7 +117,7 @@ void App::removePumpingStation() {
     string code;
 
     while(!STOP){
-        cout << endl << "Input the code of the reservoir:" << endl;
+        cout << endl << "Input the code of the Pumping Station:" << endl;
         cout << "Input 0 to exit." << endl;
 
         cin >> code;

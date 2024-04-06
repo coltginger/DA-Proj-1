@@ -353,7 +353,7 @@ void GraphManager::flowRatioBalancer() {
                 }
             }
     }
-    cout << "Final average network flow ratio is: " << averageNetworkFlowRatio(networkCopy);
+    cout << "Final average network flow ratio is: " << averageNetworkFlowRatio(networkCopy) << endl;
 }
 
 void GraphManager::removeNodeAddNode(string code){
@@ -402,6 +402,10 @@ void GraphManager::removeNodeAddNode(string code){
         _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
     }
 
+    setOptimalFlows("SuperSource", "ASuperSink");
+
+    cout << endl << endl;
+
 }
 
 void GraphManager::removePipeAddPipe(string origin, string dest){
@@ -430,4 +434,7 @@ void GraphManager::removePipeAddPipe(string origin, string dest){
 
     _graph.addEdge(originNode->getInfo(),destNode->getInfo(), weight);
 
+    setOptimalFlows("SuperSource", "ASuperSink");
+
+    cout << endl << endl;
 }
