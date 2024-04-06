@@ -355,3 +355,79 @@ void GraphManager::flowRatioBalancer() {
     }
     cout << "Final average network flow ratio is: " << averageNetworkFlowRatio(networkCopy);
 }
+
+void GraphManager::removeNodeAddNode(string code){
+
+    cout << "Flow values before:" << endl;
+
+    networkStrength();
+
+    Vertex<Node> *removedVertex = nodeFinder(code);
+    Vertex<Node>temp_vertex = *removedVertex;
+    Node node = temp_vertex.getInfo();
+
+    auto adj = removedVertex->getAdj();
+    auto incoming = removedVertex->getIncoming();
+
+    _graph.Graph::removeVertex(node);
+
+    setOptimalFlows("SuperSource", "ASuperSink");
+
+    cout << "Flow values after:"<<endl;
+
+    networkStrength();
+
+    station_type type;
+    if(node.getCode().substr(0, 1) == "R"){
+        type = station_type::Water_Reservoir;
+    }
+    else if (node.getCode().substr(0, 1) == "P"){
+        type = station_type::Pumping_Station;
+    }
+    else{
+        type = station_type::City;
+    }
+
+    _graph.addVertex(node,type);
+
+    for (auto edge: adj){
+        Vertex<Node> *start = edge ->getOrig();
+        Vertex<Node> *end = edge ->getDest();
+        _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
+    }
+
+    for (auto edge: incoming){
+        Vertex<Node> *start = edge ->getOrig();
+        Vertex<Node> *end = edge ->getDest();
+        _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
+    }
+
+}
+
+void GraphManager::removePipeAddPipe(string origin, string dest){
+
+    cout << "Flow values before:" << endl;
+
+    networkStrength();
+
+    Vertex<Node> *originNode = nodeFinder(origin);
+    Vertex<Node> *destNode = nodeFinder(dest);
+    int weight;
+
+    for(auto edge: originNode->getAdj()){
+        if(edge->getDest() == destNode){
+            weight = edge->getWeight();
+        }
+    }
+
+    _graph.removeEdge(originNode->getInfo(),destNode->getInfo());
+
+    setOptimalFlows("SuperSource", "ASuperSink");
+
+    cout << "Flow values after:"<<endl;
+
+    networkStrength();
+
+    _graph.addEdge(originNode->getInfo(),destNode->getInfo(), weight);
+
+}
