@@ -6,8 +6,8 @@ GraphManager::GraphManager() {
     addPipes();
     makeSuperSource();
     makeSuperSink();
-    setOptimalFlows();
-    averageFlowRatio = averageNetworkFlowRatio();
+    setOptimalFlows("SuperSource", "ASuperSink");
+    averageFlowRatio = averageNetworkFlowRatio(_graph);
 }
 
 
@@ -70,7 +70,7 @@ void GraphManager::addPipes() {
         Vertex<Node> *target = nodeFinder(_pipes[i].getPointB());
 
         int weight = _pipes[i].getCapacity();
-        if (_pipes[1].getDirection() == 0) {
+        if (_pipes[i].getDirection() == 0) {
             _graph.addBidirectionalEdge(source->getInfo(), target->getInfo(), weight);
         }
         else _graph.addEdge(source->getInfo(), target->getInfo(), weight);
@@ -103,6 +103,8 @@ void GraphManager::makeSuperSink() {
     }
 }
 
+int GraphManager::getAverageFlow() const {return averageFlowRatio;}
+
 Vertex<Node> *GraphManager::nodeFinder(const string& code) {
     string newsource;
     for (auto i: _graph.getVertexSet()) {
@@ -125,96 +127,99 @@ string GraphManager::IdToCode(int id, station_type type) {
     return "Type not found";
 }
 
-void GraphManager::setOptimalFlows() {
-    for (auto i: _graph.getVertexSet()) {
-        for (auto j: i->getAdj()) {
-            j->setFlow(0);
-        }
+bool GraphManager::findAugmentingPath(Vertex<Node>* source, Vertex<Node>* target){
+    for (auto v : _graph.getVertexSet()){
+        v->setVisited(false);
     }
-    map<string, string> parentMap;
 
-    int maxFlow = 0;
+    queue<Vertex<Node>*> q;
+    q.push(source);
 
-    while (bfsPath("SuperSource", parentMap)) {
-        int pathFlow = INT_MAX;
-        string v = parentMap.begin()->first;
-        while (v != "SuperSource") {
-            string u = parentMap[v];
-            for (auto j: nodeFinder(u)->getAdj()) {
-                if (j->getDest()->getInfo().getCode() == v) {
-                    pathFlow = min(pathFlow, (j->getWeight() - j->getFlow()));
-                    break;
-                }
-            }
-            v = parentMap.at(v);
-        }
-
-        v = parentMap.begin()->first;
-        while (v != "SuperSource") {
-            string u = parentMap[v];
-            auto parentNode = nodeFinder(u);
-            for (int j = 0; j < parentNode->getAdj().size(); j++) {
-                if (parentNode->getAdj()[j]->getDest()->getInfo().getCode() == v) {
-                    parentNode->getAdj()[j]->addFlow(pathFlow);
-                    for (int k = 0; k < parentNode->getAdj()[j]->getDest()->getAdj().size(); k++) {
-                        if (parentNode->getAdj()[j]->getDest()->getAdj()[k]->getDest()->getInfo().getCode() == u) {
-                            parentNode->getAdj()[j]->getDest()->getAdj()[k]->setFlow(
-                                    parentNode->getAdj()[j]->getDest()->getAdj()[k]->getWeight());
-                        }
-                    }
-                    break;
-                }
-            }
-
-            v = parentMap.at(v);
-        }
-        maxFlow += pathFlow;
-        parentMap.clear();
-    }
-}
-
-bool GraphManager::bfsPath(const string& source, map<string, string> &parentMap) {
-    queue<Vertex<Node> *> q;
-    parentMap[source] = "";
-    for (auto i: _graph.getVertexSet()) {
-        i->setVisited(false);
-    }
-    auto sourceVertex = nodeFinder(source);
-    sourceVertex->setVisited(true);
-    q.push(sourceVertex);
-
-    while (!q.empty()) {
-
+    while(!q.empty() && !target->isVisited()){
         auto v = q.front();
-        string parent = v->getInfo().getCode();
         q.pop();
-
-        for (auto e: v->getAdj()) {
-
-            if (!e->getDest()->isVisited() && (e->getWeight() - e->getFlow()) > 0) {
-                auto d = e->getDest();
-                q.push(d);
-                d->setVisited(true);
-
-                string child = d->getInfo().getCode();
-                parentMap[child] = parent;
-                if (child == "ASuperSink") return true;
+        for(auto e: v->getAdj()){
+            if (!e->getDest()->isVisited() && ((e->getWeight()-e->getFlow()) > 0)){
+                e->getDest()->setVisited(true);
+                e->getDest()->setPath(e);
+                q.push(e->getDest());
+            }
+        }
+        for(auto e : v->getIncoming()){
+            if (!e->getOrig()->isVisited() && (e->getFlow() > 0)){
+                e->getOrig()->setVisited(true);
+                e->getOrig()->setPath(e);
+                q.push(e->getOrig());
             }
         }
     }
-    return false;
+    return target->isVisited();
 }
 
-void supplyUpdater(vector<tuple<string, int, int>> &vector, const string &cityCode, int supply, int demand) {
-    for (auto &triplet: vector) {
-        if (get<0>(triplet) == cityCode) {
-            get<1>(triplet) = get<1>(triplet) + supply;
-            return;
-        } else continue;
+int GraphManager::findBottleneck(string source, string target){
+    int f = INT_MAX;
+    for (auto v = nodeFinder(target) ; v!= nodeFinder(source);){
+        Edge<Node>* e = v->getPath();
+        if(e->getDest() == v){
+            f = min(f, e->getWeight() - e->getFlow());
+            v = e->getOrig();
+        }
+        else{
+            f = min(f, e->getFlow());
+            v = e->getDest();
+        }
     }
-    vector.emplace_back(cityCode, supply, demand);
+    return f;
 }
 
+void GraphManager::addFlowToEdges(string source, string target, int f) {
+    for (auto v = nodeFinder(target) ; v!= nodeFinder(source);){
+        Edge<Node>* e = v->getPath();
+        if(e->getDest() == v){
+            e->addFlow(f);
+            v = e->getOrig();
+        }
+        else{
+            e->addFlow(-f);
+            v = e->getDest();
+        }
+    }
+
+}
+
+void GraphManager::setOptimalFlows(string ss, string ts) {
+    auto s = nodeFinder(ss);
+    auto t = nodeFinder(ts);
+
+    for (auto vertex : _graph.getVertexSet()){
+        for (auto e : vertex->getAdj()){
+            e->setFlow(0);
+        }
+    }
+
+    while (findAugmentingPath(s, t)){
+        addFlowToEdges(ss, ts, findBottleneck(ss, ts));
+    }
+
+    for (auto vertex : _graph.getVertexSet()){
+        int incomingFlow= 0;
+        for (auto e: vertex->getIncoming()){
+            incomingFlow += e->getFlow();
+        }
+    }
+}
+
+
+int getSupply(const Vertex<Node>* city) {
+    int supply = 0;
+    for (auto edge : city->getIncoming()) supply += edge->getFlow();
+    return supply;
+}
+
+bool isDeficient(const Vertex<Node>* city) {
+    if (getSupply(city) < city->getInfo().getDemand()) return true;
+    else return false;
+}
 
 void GraphManager::networkStrength() {
     long total_capacity = 0;
@@ -229,12 +234,8 @@ void GraphManager::networkStrength() {
         cout << "Não é possível abastecer todas as cidades completamente mesmo sem limites de caudal";
 
     for (auto node: _graph.getVertexSet()) {
-        if (node->getType() != City) {
-            for (auto pipe: node->getAdj())
-                if (pipe->getDest()->getType() == City) {
-                    supplyUpdater(underservedCities, pipe->getDest()->getInfo().getCode(), pipe->getFlow(),
-                                  pipe->getDest()->getInfo().getDemand());
-                }
+        if (node->getType() == City) {
+            underservedCities.emplace_back(node->getInfo().getCode(),getSupply(node), node->getInfo().getDemand());
         }
     }
 
@@ -251,42 +252,112 @@ void GraphManager::networkStrength() {
     }
 }
 
-/*
-void GraphManager::varianceHeuristic() {
+int GraphManager::averageNetworkFlowRatio(const Graph<Node>& graph) {
 
-}*/
-
-int GraphManager::averageNetworkFlowRatio() {
     vector<float> flowRatios;
-   float sumRatios = 0;
+    float sumRatios = 0;
 
-    for (auto node : _graph.getVertexSet()) {
+    for (auto node : graph.getVertexSet()) {
         if (node->getType() == Super_Node) continue;
         for (auto edge : node->getAdj()) {
-            flowRatios.push_back((float)edge->getFlow()/edge->getWeight());
+            flowRatios.push_back(edge->flowRatio());
         }
     }
 
     for (float ratio : flowRatios) {sumRatios += ratio;}
-    return sumRatios/flowRatios.size()*100;
+    return (sumRatios/flowRatios.size())*100;
 }
 
 int GraphManager::averageCityFlowRatio(const string& code) {
     vector<float> flowRatios;
     float sumRatios = 0;
     for (auto edge : nodeFinder(code)->getIncoming()) {
-        flowRatios.push_back((float)edge->getFlow()/edge->getWeight());
+        flowRatios.push_back(edge->flowRatio());
     }
 
     for (float ratio : flowRatios) {sumRatios += ratio;}
-    return sumRatios/flowRatios.size()*100;
+    return (sumRatios/flowRatios.size())*100;
 }
+
+auto compareFlow = [](Edge<Node> *a, Edge<Node> *b) {
+    return a->flowRatio() < b->flowRatio();
+};
+
+float maxRatio(Vertex<Node> * city) {
+    if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
+    return (*max_element(city->getIncoming().begin(), city->getIncoming().end(), compareFlow))->flowRatio();}
+
+float minRatio(Vertex<Node> * city) {
+    if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
+    return (*min_element(city->getIncoming().begin(), city->getIncoming().end(), compareFlow))->flowRatio();}
+
 
 void GraphManager::flowRatioBalancer() {
+    Graph<Node> networkCopy = getGraph();
+    cout << "Initial average network flow ratio is: " << averageNetworkFlowRatio(networkCopy);
 
 
+    for (auto city: networkCopy.getVertexSet()) {
+        if (city->getType() != City) continue;
+        if (city->getIncoming().size() == 1) continue;
+        //int initialAverageCityRatio = averageCityFlowRatio(city->getInfo().getCode());
+        float initialDelta = maxRatio(city) - minRatio(city);
+
+        for (int i = 0; i < city->getIncoming().size() * 5; i++) {
+            for (auto edge: city->getIncoming()) {
+                int oldRatio = edge->flowRatio() * 100;
+                int newRatio;
+
+                float oldDelta = maxRatio(city) - minRatio(city);
+                float newDelta;
+                int oldWeight;
+
+                if (oldRatio > averageCityFlowRatio(city->getInfo().getCode())) {
+                    oldWeight = edge->getWeight();
+                    edge->setWeight(edge->getFlow() - 1);
+                    setOptimalFlows("SuperSource", "ASuperSink");
+                    newDelta = maxRatio(city) - minRatio(city);
+                    newRatio = edge->flowRatio() * 100;
+
+                    if (isDeficient(city)) {
+                        edge->setWeight(oldWeight);
+                        continue;
+                    }
+                    while ((newRatio > averageCityFlowRatio(city->getInfo().getCode())
+                            || newDelta < oldDelta)
+                           && !isDeficient(city)) {
+                        oldWeight = edge->getWeight();
+                        edge->setWeight(edge->getFlow() - 1);
+                        setOptimalFlows("SuperSource", "ASuperSink");
+                        oldDelta = newDelta;
+                        newDelta = maxRatio(city) - minRatio(city);
+                        newRatio = edge->flowRatio() * 100;
+
+                        if (isDeficient(city)) {
+                            edge->setWeight(oldWeight);
+                            continue;
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    for (auto vertex: networkCopy.getVertexSet()) {
+        if (vertex->getType() == City)
+            for (auto edge: vertex->getIncoming()) {
+                for (auto pipe: _pipes) {
+                    if (edge->getOrig()->getInfo().getCode() == pipe.getPointA() &&
+                        edge->getDest()->getInfo().getCode() == pipe.getPointB()) {
+                        edge->setWeight(pipe.getCapacity());
+                        break;
+                    } else continue;
+                }
+            }
+    }
+    cout << "Final average network flow ratio is: " << averageNetworkFlowRatio(networkCopy);
 }
-
 
 void GraphManager::removeNodeAddNode(string code){
 
@@ -303,7 +374,7 @@ void GraphManager::removeNodeAddNode(string code){
 
     _graph.Graph::removeVertex(node);
 
-    setOptimalFlows();
+    setOptimalFlows("SuperSource", "ASuperSink");
 
     cout << "Flow values after:"<<endl;
 
@@ -354,7 +425,7 @@ void GraphManager::removePipeAddPipe(string origin, string dest){
 
     _graph.removeEdge(originNode->getInfo(),destNode->getInfo());
 
-    setOptimalFlows();
+    setOptimalFlows("SuperSource", "ASuperSink");
 
     cout << "Flow values after:"<<endl;
 
@@ -363,12 +434,4 @@ void GraphManager::removePipeAddPipe(string origin, string dest){
     _graph.addEdge(originNode->getInfo(),destNode->getInfo(), weight);
 
 }
-
-
-
-
-
-
-
-
 

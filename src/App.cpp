@@ -14,12 +14,13 @@ void App::run() {
 
     while (!STOP) {
         clearScreen();
-        cout << "Welcome to the Water Management System!" << endl;
-        cout << "Please select an option (number): " << endl;
-        cout << "1. Max amount of water that can reach each or a specific city." << endl;
-        cout << "2. Verify satisfiability of water needs." << endl;
-        cout << "3. Remove an element from the network (Reservoir, Station or Pipe)." << endl;
-        cout << "0. Close the program." << endl;
+        cout << "Welcome to the Water Management System!" << endl <<
+         "Please select an option (number): " << endl <<
+         "1. Max amount of water that can reach each or a specific city. " << endl <<
+         "2. Verify satisfiability of water needs. " << endl <<
+         "3. Rebalance the network" << endl <<
+         "4. Remove an element from the network (Reservoir, Station or Pipe).\" << endl; " << endl <<
+         "0. Close the program." << endl;
 
         int option, a, id;
         cin >> option;
@@ -53,7 +54,7 @@ void App::run() {
                 _graphManager.networkStrength();
                 break;
             case 3:
-                removeOption();
+                _graphManager.flowRatioBalancer();
                 break;
             case 4:
                 removeOption();
