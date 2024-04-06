@@ -41,6 +41,7 @@ public:
     void setOptimalFlows(string ss, string ts);
     void addFlowToEdges(string source, string target, int f);
 
+    void writeFlow(string code);
 
     void networkStrength();
     int averageNetworkFlowRatio(const Graph<Node>& graph);

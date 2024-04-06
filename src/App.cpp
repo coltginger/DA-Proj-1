@@ -43,11 +43,14 @@ void App::run() {
                      << "Please select an option: "<< endl;
                 cin >> a;
                 if (a == 1) {
-                    /*  for (auto city: _graphManager.getGraph().getVertexSet()) {
-                          if (city->getType() == City) {
-  */
-                    //}
-                    //}
+
+                }
+                else if (a==2) {
+                    cout << endl << "Please write the city ID: ";
+                    cin >> id;
+                    cout << endl;
+                    auto cityCode = _graphManager.IdToCode(id, City);
+                    _graphManager.writeFlow(cityCode);
                 }
                 break;
             case 2:
@@ -102,12 +105,6 @@ void App::removeOption() {
         }
     }
 }
-
-
-
-
-
-
 
 void App::removePumpingStation() {
     clearScreen();
@@ -215,10 +212,6 @@ void App::removePiping() {
 
     }
 }
-
-
-
-
 
 
 string App::toUpperString(string &str) {

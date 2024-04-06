@@ -207,6 +207,13 @@ void GraphManager::setOptimalFlows(string ss, string ts) {
     }
 }
 
+void GraphManager::writeFlow(std::string code) {
+    auto i = nodeFinder(code);
+    for (auto j : i->getAdj()){
+        cout << i->getInfo().getCode() << " : " << j->getFlow() << endl;
+    }
+}
+
 
 int getSupply(const Vertex<Node>* city) {
     int supply = 0;
