@@ -21,36 +21,21 @@ public:
     Node();
 
     void setId(int id);
-
-    void setCode(string code);
-
-    void setReservoir(string reservoir);
-
-    void setMaxDelivery(int maxDelivery);
-
-    void setCity(string city);
-
-    void setDemand(int demand);
-
-    void setPopulation(int population);
-
-    void setMunicipality(string municipality);
-
     int getId();
-
+    void setCode(string code);
     string getCode();
-
+    void setReservoir(string reservoir);
     string getReservoir();
-
     string getMunicipality();
-
+    void setMaxDelivery(int maxDelivery);
     int getMaxDelivery();
-
+    void setCity(string city);
     string getCity();
-
+    void setDemand(int demand);
     int getDemand();
-
+    void setPopulation(int population);
     int getPopulation();
+    void setMunicipality(string municipality);
 
     bool operator==(const Node &other) const;
 };

@@ -97,6 +97,7 @@ public:
     int getFlow() const;
     void setFlow(int flow);
     void addFlow(int pathflow);
+    float flowRatio() const;
 
 
     friend class Graph<T>;
@@ -209,7 +210,7 @@ template<class T>
 Edge<T> *Edge<T>::getReverse() const { return reverse;}
 
 template<class T>
-void Edge<T>::setReverse(Edge<T> *rev) {Edge:reverse = rev;}
+void Edge<T>::setReverse(Edge<T> *rev) {Edge::reverse = rev;}
 
 template<class T>
 int Edge<T>::getWeight() const {
@@ -234,6 +235,11 @@ void Edge<T>::setFlow(int f) {
 template<class T>
 void Edge<T>::addFlow(int pathflow) {
     Edge::flow += pathflow;
+}
+
+template<class T>
+float Edge<T>::flowRatio() const {
+    return (float)flow / (float)weight;
 }
 
 /*

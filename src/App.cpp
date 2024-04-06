@@ -12,7 +12,8 @@ void App::run(){
         cout << "Please select an option (number): " << endl <<
              "1. Max amount of water that can reach each or a specific city. " << endl <<
              "2. Verify satisfiability of water needs. " << endl <<
-             "3. " << endl <<
+             "3. Rebalance the network" << endl <<
+             "4. " << endl <<
              "0. Close the program." << endl;
 
 
@@ -45,6 +46,10 @@ void App::run(){
 
             case 2:
                 _graphManager.networkStrength();
+                break;
+
+            case 3:
+                _graphManager.flowRatioBalancer();
                 break;
         }
     }

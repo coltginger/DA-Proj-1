@@ -30,15 +30,16 @@ public:
     void makeSuperSource();
     void makeSuperSink();
 
+    int getAverageFlow() const;
+
     Vertex<Node> *nodeFinder(const string& code);
 
     string IdToCode(int id, station_type type);
 
     void setOptimalFlows();
     bool bfsPath(const string& source, map<string, string> &parent);
-
     void networkStrength();
-    int averageNetworkFlowRatio();
+    int averageNetworkFlowRatio(const Graph<Node>& graph);
     int averageCityFlowRatio(const string& code);
     void flowRatioBalancer();
 

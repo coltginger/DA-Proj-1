@@ -7,7 +7,7 @@ GraphManager::GraphManager() {
     makeSuperSource();
     makeSuperSink();
     setOptimalFlows();
-    averageFlowRatio = averageNetworkFlowRatio();
+    averageFlowRatio = averageNetworkFlowRatio(_graph);
 }
 
 Graph<Node> GraphManager::getGraph() {
@@ -63,12 +63,12 @@ void GraphManager::makeNodes() {
 }
 
 void GraphManager::addPipes() {
-    for (int i = 0; i < _pipes.size(); i++) {
-        Vertex<Node> *source = nodeFinder(_pipes[i].getPointA());
-        Vertex<Node> *target = nodeFinder(_pipes[i].getPointB());
+    for (auto & _pipe : _pipes) {
+        Vertex<Node> *source = nodeFinder(_pipe.getPointA());
+        Vertex<Node> *target = nodeFinder(_pipe.getPointB());
 
-        int weight = _pipes[i].getCapacity();
-        if (_pipes[1].getDirection() == 0) {
+        int weight = _pipe.getCapacity();
+        if (_pipe.getDirection() == 0) {
             _graph.addBidirectionalEdge(source->getInfo(), target->getInfo(), weight);
         }
         else _graph.addEdge(source->getInfo(), target->getInfo(), weight);
@@ -100,6 +100,8 @@ void GraphManager::makeSuperSink() {
         }
     }
 }
+
+int GraphManager::getAverageFlow() const {return averageFlowRatio;}
 
 Vertex<Node> *GraphManager::nodeFinder(const string& code) {
     string newsource;
@@ -203,16 +205,16 @@ bool GraphManager::bfsPath(const string& source, map<string, string> &parentMap)
     return false;
 }
 
-void supplyUpdater(vector<tuple<string, int, int>> &vector, const string &cityCode, int supply, int demand) {
-    for (auto &triplet: vector) {
-        if (get<0>(triplet) == cityCode) {
-            get<1>(triplet) = get<1>(triplet) + supply;
-            return;
-        } else continue;
-    }
-    vector.emplace_back(cityCode, supply, demand);
+int getSupply(const Vertex<Node>* city) {
+    int supply = 0;
+    for (auto edge : city->getIncoming()) supply += edge->getFlow();
+    return supply;
 }
 
+bool isDeficient(const Vertex<Node>* city) {
+    if (getSupply(city) < city->getInfo().getDemand()) return true;
+    else return false;
+}
 
 void GraphManager::networkStrength() {
     long total_capacity = 0;
@@ -227,12 +229,8 @@ void GraphManager::networkStrength() {
         cout << "Não é possível abastecer todas as cidades completamente mesmo sem limites de caudal";
 
     for (auto node: _graph.getVertexSet()) {
-        if (node->getType() != City) {
-            for (auto pipe: node->getAdj())
-                if (pipe->getDest()->getType() == City) {
-                    supplyUpdater(underservedCities, pipe->getDest()->getInfo().getCode(), pipe->getFlow(),
-                                  pipe->getDest()->getInfo().getDemand());
-                }
+        if (node->getType() == City) {
+            underservedCities.emplace_back(node->getInfo().getCode(),getSupply(node), node->getInfo().getDemand());
         }
     }
 
@@ -249,39 +247,108 @@ void GraphManager::networkStrength() {
     }
 }
 
-int GraphManager::averageNetworkFlowRatio() {
+int GraphManager::averageNetworkFlowRatio(const Graph<Node>& graph) {
     vector<float> flowRatios;
-   float sumRatios = 0;
+    float sumRatios = 0;
 
-    for (auto node : _graph.getVertexSet()) {
+    for (auto node : graph.getVertexSet()) {
         if (node->getType() == Super_Node) continue;
         for (auto edge : node->getAdj()) {
-            flowRatios.push_back((float)edge->getFlow()/edge->getWeight());
+            flowRatios.push_back(edge->flowRatio());
         }
     }
 
     for (float ratio : flowRatios) {sumRatios += ratio;}
-    return sumRatios/flowRatios.size()*100;
+    return (sumRatios/flowRatios.size())*100;
 }
 
 int GraphManager::averageCityFlowRatio(const string& code) {
     vector<float> flowRatios;
     float sumRatios = 0;
     for (auto edge : nodeFinder(code)->getIncoming()) {
-        flowRatios.push_back((float)edge->getFlow()/edge->getWeight());
+        flowRatios.push_back(edge->flowRatio());
     }
 
     for (float ratio : flowRatios) {sumRatios += ratio;}
-    return sumRatios/flowRatios.size()*100;
+    return (sumRatios/flowRatios.size())*100;
 }
+
+auto compareFlow = [](Edge<Node> *a, Edge<Node> *b) {
+    return a->flowRatio() < b->flowRatio();
+};
+
+float maxRatio(Vertex<Node> * city) {
+    if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
+    return (*max_element(city->getIncoming().begin(), city->getIncoming().end(), compareFlow))->flowRatio();}
+
+float minRatio(Vertex<Node> * city) {
+    if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
+    return (*min_element(city->getIncoming().begin(), city->getIncoming().end(), compareFlow))->flowRatio();}
+
 
 void GraphManager::flowRatioBalancer() {
+    Graph<Node> networkCopy = getGraph();
+    cout << "Initial average network flow ratio is: " << averageNetworkFlowRatio(networkCopy);
 
 
+    for (auto city: networkCopy.getVertexSet()) {
+        if (city->getType() != City) continue;
+        if (city->getIncoming().size() == 1) continue;
+        //int initialAverageCityRatio = averageCityFlowRatio(city->getInfo().getCode());
+        float initialDelta = maxRatio(city) - minRatio(city);
+
+        for (int i = 0; i < city->getIncoming().size() * 5; i++) {
+            for (auto edge: city->getIncoming()) {
+                int oldRatio = edge->flowRatio() * 100;
+                int newRatio;
+
+                float oldDelta = maxRatio(city) - minRatio(city);
+                float newDelta;
+                int oldWeight;
+
+                if (oldRatio > averageCityFlowRatio(city->getInfo().getCode())) {
+                    oldWeight = edge->getWeight();
+                    edge->setWeight(edge->getFlow() - 1);
+                    setOptimalFlows();
+                    newDelta = maxRatio(city) - minRatio(city);
+                    newRatio = edge->flowRatio() * 100;
+
+                    if (isDeficient(city)) {
+                        edge->setWeight(oldWeight);
+                        continue;
+                    }
+                    while ((newRatio > averageCityFlowRatio(city->getInfo().getCode())
+                            || newDelta < oldDelta)
+                           && !isDeficient(city)) {
+                        oldWeight = edge->getWeight();
+                        edge->setWeight(edge->getFlow() - 1);
+                        setOptimalFlows();
+                        oldDelta = newDelta;
+                        newDelta = maxRatio(city) - minRatio(city);
+                        newRatio = edge->flowRatio() * 100;
+
+                        if (isDeficient(city)) {
+                            edge->setWeight(oldWeight);
+                            continue;
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    for (auto vertex: networkCopy.getVertexSet()) {
+        if (vertex->getType() == City)
+            for (auto edge: vertex->getIncoming()) {
+                for (auto pipe: _pipes) {
+                    if (edge->getOrig()->getInfo().getCode() == pipe.getPointA() &&
+                        edge->getDest()->getInfo().getCode() == pipe.getPointB()) {
+                        edge->setWeight(pipe.getCapacity());
+                        break;
+                    } else continue;
+                }
+            }
+    }
+    cout << "Final average network flow ratio is: " << averageNetworkFlowRatio(networkCopy);
 }
-
-
-
-
-
-
