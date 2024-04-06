@@ -196,7 +196,7 @@ void Edge<T>::setOrig(Vertex<T> *o) {
 }
 
 template<class T>
-Vertex<T> *Edge<T>::getDest() const {
+Vertex<T> *Edge<T>::getDest() const{
     return dest;
 }
 
@@ -373,8 +373,8 @@ bool Graph<T>::addBidirectionalEdge(const T &sourc, const T &dest, double w) {
  */
 template <class T>
 bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
-    auto v1 = findVertex(sourc, City);
-    auto v2 = findVertex(dest, City);
+    auto v1 = findVertex(sourc);
+    auto v2 = findVertex(dest);
     if (v1 == NULL || v2 == NULL)
         return false;
     return v1->removeEdgeTo(v2);
@@ -388,7 +388,7 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 template <class T>
 bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
     for (auto it = adj.begin(); it != adj.end(); it++)
-        if (it->dest  == d) {
+        if ((*it)->dest == d) {
             adj.erase(it);
             return true;
         }

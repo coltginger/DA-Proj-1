@@ -287,105 +287,83 @@ void GraphManager::flowRatioBalancer() {
 
 }
 
-void GraphManager::removeSOrRNode(string code){
-    makeNodesWithoutNode(code);
-    makePipesWithoutNodePipes(code);
-    addPipes();
-    makeSuperSource();
-    makeSuperSink();
-    setOptimalFlows();
-    averageFlowRatio = averageNetworkFlowRatio();
-}
 
-void GraphManager::removePipe(string origin, string dest){
-    makeNodes();
-    makePipesWithoutPipe(origin, dest);
-    addPipes();
-    makeSuperSource();
-    makeSuperSink();
-    setOptimalFlows();
-    averageFlowRatio = averageNetworkFlowRatio();
-}
+void GraphManager::removeNodeAddNode(string code){
 
-void GraphManager::makeNodesWithoutNode(string code){
-    auto stationinfo = _vectors.getStationsFile();
-    auto reservoirinfo = _vectors.getReservoirsFile();
-    auto cityinfo = _vectors.getCitiesFile();
+    cout << "Flow values before:" << endl;
 
-    for (int i = 0; i < cityinfo.size(); i = i + 5) {
-        Node newNode = Node();
-        newNode.setCity(cityinfo[i]);
-        newNode.setId(stoi(cityinfo[i + 1]));
-        newNode.setCode(cityinfo[i + 2]);
-        newNode.setDemand(stoi(cityinfo[i + 3]));
-        newNode.setPopulation(stoi(cityinfo[i + 4]));
+    networkStrength();
 
-        _graph.addVertex(newNode, City);
-    }
-
-    for (int i = 0; i < stationinfo.size(); i = i + 2) {
-        if(stationinfo[i+1] != code) {
-            Node newNode = Node();
-            newNode.setId(stoi(stationinfo[i]));
-            newNode.setCode(stationinfo[i + 1]);
-
-            _graph.addVertex(newNode, Pumping_Station);
-        }
-    }
-
-    for (int i = 0; i < reservoirinfo.size(); i = i + 5) {
-        if (reservoirinfo[i+3] != code ) {
-            Node newNode = Node();
-            newNode.setReservoir(reservoirinfo[i]);
-            newNode.setMunicipality(reservoirinfo[i + 1]);
-            newNode.setId(stoi(reservoirinfo[i + 2]));
-            newNode.setCode(reservoirinfo[i + 3]);
-            newNode.setMaxDelivery(stoi(reservoirinfo[i + 4]));
-
-            _graph.addVertex(newNode, Water_Reservoir);
-        }
-    }
-}
-
-void GraphManager::makePipesWithoutNodePipes(string code){
-    auto pipeinfo = _vectors.getPipesFile();
-    for (int i = 0; i < pipeinfo.size(); i = i + 4) {
-        string pointA = pipeinfo[i];
-        string pointB = pipeinfo[i + 1];
-        if(pointA != code and pointB != code) {
-            int capacity = stoi(pipeinfo[i + 2]);
-            int direction = stoi(pipeinfo[i + 3]);
-            Pipe newPipe = Pipe(pointA, pointB, capacity, direction);
-            _pipes.push_back(newPipe);
-        }
-    }
-}
-
-void GraphManager::makePipesWithoutPipe(string origin, string dest){
-    auto pipeinfo = _vectors.getPipesFile();
-    for (int i = 0; i < pipeinfo.size(); i = i + 4) {
-        string pointA = pipeinfo[i];
-        string pointB = pipeinfo[i + 1];
-        if(pointA != origin and pointB != dest) {
-            int capacity = stoi(pipeinfo[i + 2]);
-            int direction = stoi(pipeinfo[i + 3]);
-            Pipe newPipe = Pipe(pointA, pointB, capacity, direction);
-            _pipes.push_back(newPipe);
-        }
-    }
-}
-
-/*
-void GraphManager::removeNode(string code){
     Vertex<Node> *removedVertex = nodeFinder(code);
+    Vertex<Node>temp_vertex = *removedVertex;
+    Node node = temp_vertex.getInfo();
 
     auto adj = removedVertex->getAdj();
     auto incoming = removedVertex->getIncoming();
 
-    _graph.Graph::removeVertex(removedVertex->getInfo());
+    _graph.Graph::removeVertex(node);
+
+    setOptimalFlows();
+
+    cout << "Flow values after:"<<endl;
+
+    networkStrength();
+
+    station_type type;
+    if(node.getCode().substr(0, 1) == "R"){
+        type = station_type::Water_Reservoir;
+    }
+    else if (node.getCode().substr(0, 1) == "P"){
+        type = station_type::Pumping_Station;
+    }
+    else{
+        type = station_type::City;
+    }
+
+    _graph.addVertex(node,type);
+
+    for (auto edge: adj){
+        Vertex<Node> *start = edge ->getOrig();
+        Vertex<Node> *end = edge ->getDest();
+        _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
+    }
+
+    for (auto edge: incoming){
+        Vertex<Node> *start = edge ->getOrig();
+        Vertex<Node> *end = edge ->getDest();
+        _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
+    }
 
 }
-*/
+
+void GraphManager::removePipeAddPipe(string origin, string dest){
+
+    cout << "Flow values before:" << endl;
+
+    networkStrength();
+
+    Vertex<Node> *originNode = nodeFinder(origin);
+    Vertex<Node> *destNode = nodeFinder(dest);
+    int weight;
+
+    for(auto edge: originNode->getAdj()){
+        if(edge->getDest() == destNode){
+            weight = edge->getWeight();
+        }
+    }
+
+    _graph.removeEdge(originNode->getInfo(),destNode->getInfo());
+
+    setOptimalFlows();
+
+    cout << "Flow values after:"<<endl;
+
+    networkStrength();
+
+    _graph.addEdge(originNode->getInfo(),destNode->getInfo(), weight);
+
+}
+
 
 
 

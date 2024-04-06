@@ -56,7 +56,7 @@ void App::run() {
                 removeOption();
                 break;
             case 4:
-                removePipe();
+                removeOption();
                 break;
             default:
                 cout << "Invalid option. Please select a valid option." << endl;
@@ -116,7 +116,7 @@ void App::removePumpingStation() {
 
     while(!STOP){
         cout << endl << "Input the code of the reservoir:" << endl;
-        cout << "Press 0 to exit." << endl;
+        cout << "Input 0 to exit." << endl;
 
         cin >> code;
 
@@ -132,9 +132,7 @@ void App::removePumpingStation() {
                      << "Please input a new code." << endl;
             }
             else {
-                _graphManager.removeSOrRNode(code);
-                cout << endl << "With the pipe removed:" << endl;
-                _graphManager.networkStrength();
+                _graphManager.removeNodeAddNode(code);
                 STOP = true;
             }
         }
@@ -149,7 +147,7 @@ void App::removeReservoire() {
 
     while(!STOP){
         cout << endl << "Input the code of the reservoir:" << endl;
-        cout << "Press 0 to exit." << endl;
+        cout << "Input 0 to exit." << endl;
 
         cin >> code;
 
@@ -165,9 +163,7 @@ void App::removeReservoire() {
                      << "Please input a new code." << endl;
             }
             else {
-                _graphManager.removeSOrRNode(code);
-                cout << endl << "With the pipe removed:" << endl;
-                _graphManager.networkStrength();
+                _graphManager.removeNodeAddNode(code);
                 STOP = true;
             }
         }
@@ -179,10 +175,11 @@ void App::removePiping() {
     bool STOP = false;
 
     string start, dest;
+    bool valid_edge;
 
     while(!STOP){
         cout << "Input the codes for the start and destination of the pipes." << endl;
-        cout << "Press 0 to exit." << endl;
+        cout << "Input 0 to exit." << endl;
         cout << "Start node code:" << endl;
         cin >> start;
 
@@ -196,17 +193,21 @@ void App::removePiping() {
             cout <<endl << "Destination node code:";
             cin >> dest;
 
+            for(auto edge: _graphManager.nodeFinder(start)->getAdj()){
+                if(edge->getDest()->getInfo().getCode() == dest){
+                    valid_edge = true;
+                }
+            }
+
             if(dest == "0"){
                 exit(0); // Exit the program
             }
-            else if (_graphManager.nodeFinder(dest) == nullptr){
+            else if (!valid_edge){
                 cout <<endl << "No node found with given code. " << endl << endl;
             }
             else{
-                GraphManager withoutPipe = _graphManager.removePipe(start, dest);
-                cout << endl << "With the pipe removed:" << endl;
-                _graphManager.networkStrength();
-                STOP = true;
+                    _graphManager.removePipeAddPipe(start,dest);
+                    STOP = true;
 
             }
         }
