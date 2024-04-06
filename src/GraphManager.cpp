@@ -10,6 +10,8 @@ GraphManager::GraphManager() {
     averageFlowRatio = averageNetworkFlowRatio();
 }
 
+
+
 Graph<Node> GraphManager::getGraph() {
     return _graph;
 }
@@ -249,10 +251,10 @@ void GraphManager::networkStrength() {
     }
 }
 
-
+/*
 void GraphManager::varianceHeuristic() {
 
-}
+}*/
 
 int GraphManager::averageNetworkFlowRatio() {
     vector<float> flowRatios;
@@ -295,9 +297,9 @@ void GraphManager::removeSOrRNode(string code){
     averageFlowRatio = averageNetworkFlowRatio();
 }
 
-void GraphManager::removePipe(string code){
+void GraphManager::removePipe(string origin, string dest){
     makeNodes();
-    makePipesWithoutPipe(code);
+    makePipesWithoutPipe(origin, dest);
     addPipes();
     makeSuperSource();
     makeSuperSink();
@@ -372,6 +374,18 @@ void GraphManager::makePipesWithoutPipe(string origin, string dest){
         }
     }
 }
+
+/*
+void GraphManager::removeNode(string code){
+    Vertex<Node> *removedVertex = nodeFinder(code);
+
+    auto adj = removedVertex->getAdj();
+    auto incoming = removedVertex->getIncoming();
+
+    _graph.Graph::removeVertex(removedVertex->getInfo());
+
+}
+*/
 
 
 

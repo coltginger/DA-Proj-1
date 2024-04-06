@@ -11,7 +11,10 @@ private:
 public:
     App();
     void run();
-    bool removeOption();
+    void removeOption();
+    void removePiping();
+    void removeReservoire();
+    void removePumpingStation();
     string toUpperString(string &str);
 };
 
