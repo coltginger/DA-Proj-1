@@ -7,6 +7,7 @@ GraphManager::GraphManager() {
     makeSuperSource();
     makeSuperSink();
     setOptimalFlows("SuperSource", "ASuperSink");
+    setOptimalFlows("SuperSource", "ASuperSink");
     averageFlowRatio = averageNetworkFlowRatio(_graph);
 }
 
@@ -188,6 +189,12 @@ void GraphManager::addFlowToEdges(string source, string target, int f) {
 void GraphManager::setOptimalFlows(string ss, string ts) {
     auto s = nodeFinder(ss);
     auto t = nodeFinder(ts);
+
+    for (auto vertex : _graph.getVertexSet()){
+        for (auto e : vertex->getAdj()){
+            e->setFlow(0);
+        }
+    }
 
     while (findAugmentingPath(s, t)){
         addFlowToEdges(ss, ts, findBottleneck(ss, ts));
