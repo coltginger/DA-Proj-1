@@ -41,6 +41,7 @@ class Vertex {
     int num;               // auxiliary field
     int low;               // auxiliary field
     station_type type;     // auxiliary field
+    Edge<T> *path = nullptr;
 
 public:
     Vertex(T in, station_type newType);
@@ -68,6 +69,9 @@ public:
 
     void setType(station_type newType);
     station_type getType();
+
+    void setPath(Edge<T> *path);
+    Edge<T>* getPath();
 
     friend class Graph<T>;
 };
@@ -297,6 +301,17 @@ template<class T>
 station_type Vertex<T>::getType() {
     return type;
 }
+
+template<class T>
+void Vertex<T>::setPath(Edge<T>* path){
+    Vertex::path = path;
+}
+
+template<class T>
+Edge<T>* Vertex<T>::getPath() {
+    return path;
+}
+
 
 template <class T>
 void Vertex<T>::setVisited(bool v) {

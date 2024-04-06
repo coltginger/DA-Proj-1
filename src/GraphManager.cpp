@@ -6,7 +6,7 @@ GraphManager::GraphManager() {
     addPipes();
     makeSuperSource();
     makeSuperSink();
-    setOptimalFlows();
+    setOptimalFlows("SuperSource", "ASuperSink");
     averageFlowRatio = averageNetworkFlowRatio(_graph);
 }
 
@@ -63,12 +63,12 @@ void GraphManager::makeNodes() {
 }
 
 void GraphManager::addPipes() {
-    for (auto & _pipe : _pipes) {
-        Vertex<Node> *source = nodeFinder(_pipe.getPointA());
-        Vertex<Node> *target = nodeFinder(_pipe.getPointB());
+    for (int i = 0; i < _pipes.size(); i++) {
+        Vertex<Node> *source = nodeFinder(_pipes[i].getPointA());
+        Vertex<Node> *target = nodeFinder(_pipes[i].getPointB());
 
-        int weight = _pipe.getCapacity();
-        if (_pipe.getDirection() == 0) {
+        int weight = _pipes[i].getCapacity();
+        if (_pipes[i].getDirection() == 0) {
             _graph.addBidirectionalEdge(source->getInfo(), target->getInfo(), weight);
         }
         else _graph.addEdge(source->getInfo(), target->getInfo(), weight);
@@ -125,85 +125,82 @@ string GraphManager::IdToCode(int id, station_type type) {
     return "Type not found";
 }
 
-void GraphManager::setOptimalFlows() {
-    for (auto i: _graph.getVertexSet()) {
-        for (auto j: i->getAdj()) {
-            j->setFlow(0);
-        }
+bool GraphManager::findAugmentingPath(Vertex<Node>* source, Vertex<Node>* target){
+    for (auto v : _graph.getVertexSet()){
+        v->setVisited(false);
     }
-    map<string, string> parentMap;
 
-    int maxFlow = 0;
+    queue<Vertex<Node>*> q;
+    q.push(source);
 
-    while (bfsPath("SuperSource", parentMap)) {
-        int pathFlow = INT_MAX;
-        string v = parentMap.begin()->first;
-        while (v != "SuperSource") {
-            string u = parentMap[v];
-            for (auto j: nodeFinder(u)->getAdj()) {
-                if (j->getDest()->getInfo().getCode() == v) {
-                    pathFlow = min(pathFlow, (j->getWeight() - j->getFlow()));
-                    break;
-                }
-            }
-            v = parentMap.at(v);
-        }
-
-        v = parentMap.begin()->first;
-        while (v != "SuperSource") {
-            string u = parentMap[v];
-            auto parentNode = nodeFinder(u);
-            for (int j = 0; j < parentNode->getAdj().size(); j++) {
-                if (parentNode->getAdj()[j]->getDest()->getInfo().getCode() == v) {
-                    parentNode->getAdj()[j]->addFlow(pathFlow);
-                    for (int k = 0; k < parentNode->getAdj()[j]->getDest()->getAdj().size(); k++) {
-                        if (parentNode->getAdj()[j]->getDest()->getAdj()[k]->getDest()->getInfo().getCode() == u) {
-                            parentNode->getAdj()[j]->getDest()->getAdj()[k]->setFlow(
-                                    parentNode->getAdj()[j]->getDest()->getAdj()[k]->getWeight());
-                        }
-                    }
-                    break;
-                }
-            }
-
-            v = parentMap.at(v);
-        }
-        maxFlow += pathFlow;
-        parentMap.clear();
-    }
-}
-
-bool GraphManager::bfsPath(const string& source, map<string, string> &parentMap) {
-    queue<Vertex<Node> *> q;
-    parentMap[source] = "";
-    for (auto i: _graph.getVertexSet()) {
-        i->setVisited(false);
-    }
-    auto sourceVertex = nodeFinder(source);
-    sourceVertex->setVisited(true);
-    q.push(sourceVertex);
-
-    while (!q.empty()) {
-
+    while(!q.empty() && !target->isVisited()){
         auto v = q.front();
-        string parent = v->getInfo().getCode();
         q.pop();
-
-        for (auto e: v->getAdj()) {
-
-            if (!e->getDest()->isVisited() && (e->getWeight() - e->getFlow()) > 0) {
-                auto d = e->getDest();
-                q.push(d);
-                d->setVisited(true);
-
-                string child = d->getInfo().getCode();
-                parentMap[child] = parent;
-                if (child == "ASuperSink") return true;
+        for(auto e: v->getAdj()){
+            if (!e->getDest()->isVisited() && ((e->getWeight()-e->getFlow()) > 0)){
+                e->getDest()->setVisited(true);
+                e->getDest()->setPath(e);
+                q.push(e->getDest());
+            }
+        }
+        for(auto e : v->getIncoming()){
+            if (!e->getOrig()->isVisited() && (e->getFlow() > 0)){
+                e->getOrig()->setVisited(true);
+                e->getOrig()->setPath(e);
+                q.push(e->getOrig());
             }
         }
     }
-    return false;
+    return target->isVisited();
 }
+
+int GraphManager::findBottleneck(string source, string target){
+    int f = INT_MAX;
+    for (auto v = nodeFinder(target) ; v!= nodeFinder(source);){
+        Edge<Node>* e = v->getPath();
+        if(e->getDest() == v){
+            f = min(f, e->getWeight() - e->getFlow());
+            v = e->getOrig();
+        }
+        else{
+            f = min(f, e->getFlow());
+            v = e->getDest();
+        }
+    }
+    return f;
+}
+
+void GraphManager::addFlowToEdges(string source, string target, int f) {
+    for (auto v = nodeFinder(target) ; v!= nodeFinder(source);){
+        Edge<Node>* e = v->getPath();
+        if(e->getDest() == v){
+            e->addFlow(f);
+            v = e->getOrig();
+        }
+        else{
+            e->addFlow(-f);
+            v = e->getDest();
+        }
+    }
+
+}
+
+void GraphManager::setOptimalFlows(string ss, string ts) {
+    auto s = nodeFinder(ss);
+    auto t = nodeFinder(ts);
+
+    while (findAugmentingPath(s, t)){
+        addFlowToEdges(ss, ts, findBottleneck(ss, ts));
+    }
+
+    for (auto vertex : _graph.getVertexSet()){
+        int incomingFlow= 0;
+        for (auto e: vertex->getIncoming()){
+            incomingFlow += e->getFlow();
+        }
+    }
+}
+
 
 int getSupply(const Vertex<Node>* city) {
     int supply = 0;

@@ -36,8 +36,12 @@ public:
 
     string IdToCode(int id, station_type type);
 
-    void setOptimalFlows();
-    bool bfsPath(const string& source, map<string, string> &parent);
+    bool findAugmentingPath(Vertex<Node>* source, Vertex<Node>* target);
+    int findBottleneck(string source, string target);
+    void setOptimalFlows(string ss, string ts);
+    void addFlowToEdges(string source, string target, int f);
+
+
     void networkStrength();
     int averageNetworkFlowRatio(const Graph<Node>& graph);
     int averageCityFlowRatio(const string& code);
