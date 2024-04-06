@@ -306,7 +306,7 @@ void GraphManager::flowRatioBalancer() {
                 if (oldRatio > averageCityFlowRatio(city->getInfo().getCode())) {
                     oldWeight = edge->getWeight();
                     edge->setWeight(edge->getFlow() - 1);
-                    setOptimalFlows();
+                    setOptimalFlows("SuperSource", "ASuperSink");
                     newDelta = maxRatio(city) - minRatio(city);
                     newRatio = edge->flowRatio() * 100;
 
@@ -319,7 +319,7 @@ void GraphManager::flowRatioBalancer() {
                            && !isDeficient(city)) {
                         oldWeight = edge->getWeight();
                         edge->setWeight(edge->getFlow() - 1);
-                        setOptimalFlows();
+                        setOptimalFlows("SuperSource", "ASuperSink");
                         oldDelta = newDelta;
                         newDelta = maxRatio(city) - minRatio(city);
                         newRatio = edge->flowRatio() * 100;
