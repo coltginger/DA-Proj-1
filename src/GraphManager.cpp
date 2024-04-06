@@ -199,11 +199,12 @@ void GraphManager::setOptimalFlows(string ss, string ts) {
         addFlowToEdges(ss, ts, findBottleneck(ss, ts));
     }
 
-    for (auto vertex : _graph.getVertexSet()){
-        int incomingFlow= 0;
-        for (auto e: vertex->getIncoming()){
-            incomingFlow += e->getFlow();
-        }
+}
+
+void GraphManager::writeFlow(std::string code) {
+    auto i = nodeFinder(code);
+    for (auto j : i->getAdj()){
+        cout << i->getInfo().getCode() << " : " << j->getFlow() << endl;
     }
 }
 
@@ -229,11 +230,11 @@ void GraphManager::networkStrength() {
     for (int i = 3; i < _vectors.getCitiesFile().size(); i = i + 5)
         total_demand += stoi(_vectors.getCitiesFile()[i]);
     if (total_demand > total_capacity)
-        cout << "Não é possível abastecer todas as cidades completamente mesmo sem limites de caudal";
+        cout << "It is not possible to supply all cities completely even without flow limits";
 
     for (auto node: _graph.getVertexSet()) {
         if (node->getType() == City) {
-            underservedCities.emplace_back(node->getInfo().getCode(),getSupply(node), node->getInfo().getDemand());
+            underservedCities.emplace_back(node->getInfo().getCode(),node->getAdj()[0]->getFlow(), node->getInfo().getDemand());
         }
     }
 
@@ -243,7 +244,7 @@ void GraphManager::networkStrength() {
         if (deficit > 0) {
             if (!deficient) {
                 deficient = true;
-                cout << "Cidades com defice de agua:" << endl;
+                cout << "Cities with water deficit: " << endl;
                 cout << get<0>(underserved) << ": " << deficit << endl;
             } else cout << get<0>(underserved) << ": " << deficit << endl;
         }
