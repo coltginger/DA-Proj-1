@@ -7,7 +7,6 @@ GraphManager::GraphManager() {
     makeSuperSource();
     makeSuperSink();
     setOptimalFlows("SuperSource", "ASuperSink");
-    setOptimalFlows("SuperSource", "ASuperSink");
     averageFlowRatio = averageNetworkFlowRatio(_graph);
 }
 
