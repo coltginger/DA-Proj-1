@@ -1,13 +1,46 @@
 #include "FileManager.h"
 #include <sstream>
 #include <fstream>
+#include <iostream>
 using namespace std;
 
+/**
+ * @brief Before any methods are made and the graph is created, the class by default asks which data set to use
+ * @details Time complexity O(1)
+ */
 FileManager::FileManager() {
+    cout << "What dataset would you like to build?" << endl
+         << "1. Madeira Data Set" << endl
+         << "2. Continental Portugal Data Set" << endl
+         << "Please select an option (number): ";
+    string choice;
+    bool done = false;
+    while(!done){
+        cin >> choice;
+        if (choice == "1") {
+            madeiraChosen();
+            done = true;
+        } else if (choice == "2") {
+            continenteChosen();
+            done = true;
+        } else {
+            cout << endl << "Please choose a possible answer" << endl;
+        }
+    }
+}
+
+void FileManager::madeiraChosen() {
     _reservoirsfile = filetoVector("../src/csv_small/Reservoirs_Madeira.csv");
     _stationsfile = filetoVector("../src/csv_small/Stations_Madeira.csv");
     _citiesfile = filetoVector("../src/csv_small/Cities_Madeira.csv");
     _pipesfile = filetoVector("../src/csv_small/Pipes_Madeira.csv");
+}
+
+void FileManager::continenteChosen() {
+    _reservoirsfile = filetoVector("../src/csv_large/Reservoir.csv");
+    _stationsfile = filetoVector("../src/csv_large/Stations.csv");
+    _citiesfile = filetoVector("../src/csv_large/Cities.csv");
+    _pipesfile = filetoVector("../src/csv_large/Pipes.csv");
 }
 
 void FileManager::setReservoirsFile(vector<std::string> reservoirsfile) {

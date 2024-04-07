@@ -15,6 +15,8 @@ private:
 public:
     FileManager();
 
+    void madeiraChosen();
+    void continenteChosen();
     void setReservoirsFile(vector<string> reservoirsfile);
     void setStationsFile(vector<string> stationsfile);
     void setCitiesFile(vector<string> citiesfile);
