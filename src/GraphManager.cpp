@@ -1,6 +1,5 @@
 #include "GraphManager.h"
 
-
 GraphManager::GraphManager() {
     makeNodes();
     makePipes();
@@ -76,12 +75,12 @@ void GraphManager::makeNodes() {
  * @details Time complexity 0(n) where n is the number of Pipes in the vector
  */
 void GraphManager::addPipes() {
-    for (int i = 0; i < _pipes.size(); i++) {
-        Vertex<Node> *source = nodeFinder(_pipes[i].getPointA());
-        Vertex<Node> *target = nodeFinder(_pipes[i].getPointB());
+    for (auto & _pipe : _pipes) {
+        Vertex<Node> *source = nodeFinder(_pipe.getPointA());
+        Vertex<Node> *target = nodeFinder(_pipe.getPointB());
 
-        int weight = _pipes[i].getCapacity();
-        if (_pipes[i].getDirection() == 0) {
+        int weight = _pipe.getCapacity();
+        if (_pipe.getDirection() == 0) {
             _graph.addBidirectionalEdge(source->getInfo(), target->getInfo(), weight);
         }
         else _graph.addEdge(source->getInfo(), target->getInfo(), weight);
@@ -275,9 +274,9 @@ void GraphManager::writeFlow(std::string code) {
 }
 
 
-int getSupply(const Vertex<Node>* city) {
+int getSupply(const Vertex<Node>* node) {
     int supply = 0;
-    for (auto edge : city->getIncoming()) supply += edge->getFlow();
+    for (auto edge : node->getIncoming()) supply += edge->getFlow();
     return supply;
 }
 
@@ -286,6 +285,10 @@ bool isDeficient(const Vertex<Node>* city) {
     else return false;
 }
 
+/**
+ * @brief Prints the (if any) cities that don't receive enough water to cover the demand
+ * @details Time complexity O(n) where n is the number of nodes in the graph
+ */
 void GraphManager::networkStrength() {
     long total_capacity = 0;
     long total_demand = 0;
@@ -317,7 +320,13 @@ void GraphManager::networkStrength() {
     }
 }
 
-int GraphManager::averageNetworkFlowRatio(const Graph<Node>& graph) {
+/**
+ * @brief Prints the average flow ratio of the pipes in the entire network
+ * @details Time complexity O(V*E) where V is the number of vertexes and E the number of edges in the graph
+ * @param graph of the network
+ * @return a float of the calculated average in percentage
+ */
+float GraphManager::averageNetworkFlowRatio(const Graph<Node>& graph) {
     vector<float> flowRatios;
     float sumRatios = 0;
 
@@ -329,10 +338,17 @@ int GraphManager::averageNetworkFlowRatio(const Graph<Node>& graph) {
     }
 
     for (float ratio : flowRatios) {sumRatios += ratio;}
-    return (sumRatios/flowRatios.size())*100;
+    float averageRatio = (sumRatios/flowRatios.size())*100;
+    return averageRatio;
 }
 
-int GraphManager::averageCityFlowRatio(const string& code) {
+/**
+ * @brief Prints the average flow ratio of the pipes entering a node
+ * @details Time complexity O(V + E) where V is the number of vertexes in the graph and E the number of edges entering a node
+ * @param code of a node
+ * @return a flat of the calculated average in percentage
+ */
+float GraphManager::averageNodeFlowRatio(const string& code) {
     vector<float> flowRatios;
     float sumRatios = 0;
     for (auto edge : nodeFinder(code)->getIncoming()) {
@@ -340,87 +356,150 @@ int GraphManager::averageCityFlowRatio(const string& code) {
     }
 
     for (float ratio : flowRatios) {sumRatios += ratio;}
-    return (sumRatios/flowRatios.size())*100;
+    float averageRatio = (sumRatios/flowRatios.size())*100;
+    return averageRatio;
 }
 
-auto compareFlow = [](Edge<Node> *a, Edge<Node> *b) {
-    return a->flowRatio() < b->flowRatio();
-};
+/**
+ * @brief Prints the median flow ratio of the pipes in the entire network
+ * @details Time complexity O(V*E) where V is the number of vertexes and E the number of edges in the graph
+ * @param graph of the network
+ * @return a float of the calculated median in percentage
+ */
+float GraphManager::medianNetworkFlowRatio(const Graph<Node>& graph) {
+    vector<float>  pipesRatios;
 
-float maxRatio(Vertex<Node> * city) {
-    if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
-    return (*max_element(city->getIncoming().begin(), city->getIncoming().end(), compareFlow))->flowRatio();}
-
-float minRatio(Vertex<Node> * city) {
-    if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
-    return (*min_element(city->getIncoming().begin(), city->getIncoming().end(), compareFlow))->flowRatio();}
-
-
-void GraphManager::flowRatioBalancer() {
-    Graph<Node> networkCopy = getGraph();
-    cout << "Initial average network flow ratio is: " << averageNetworkFlowRatio(networkCopy);
-
-
-    for (auto city: networkCopy.getVertexSet()) {
-        if (city->getType() != City) continue;
-        if (city->getIncoming().size() == 1) continue;
-        //int initialAverageCityRatio = averageCityFlowRatio(city->getInfo().getCode());
-        float initialDelta = maxRatio(city) - minRatio(city);
-
-        for (int i = 0; i < city->getIncoming().size() * 5; i++) {
-            for (auto edge: city->getIncoming()) {
-                int oldRatio = edge->flowRatio() * 100;
-                int newRatio;
-
-                float oldDelta = maxRatio(city) - minRatio(city);
-                float newDelta;
-                int oldWeight;
-
-                if (oldRatio > averageCityFlowRatio(city->getInfo().getCode())) {
-                    oldWeight = edge->getWeight();
-                    edge->setWeight(edge->getFlow() - 1);
-                    setOptimalFlows("SuperSource", "ASuperSink");
-                    newDelta = maxRatio(city) - minRatio(city);
-                    newRatio = edge->flowRatio() * 100;
-
-                    if (isDeficient(city)) {
-                        edge->setWeight(oldWeight);
-                        continue;
-                    }
-                    while ((newRatio > averageCityFlowRatio(city->getInfo().getCode())
-                            || newDelta < oldDelta)
-                           && !isDeficient(city)) {
-                        oldWeight = edge->getWeight();
-                        edge->setWeight(edge->getFlow() - 1);
-                        setOptimalFlows("SuperSource", "ASuperSink");
-                        oldDelta = newDelta;
-                        newDelta = maxRatio(city) - minRatio(city);
-                        newRatio = edge->flowRatio() * 100;
-
-                        if (isDeficient(city)) {
-                            edge->setWeight(oldWeight);
-                            continue;
-                        }
-
-                    }
-                }
-            }
+    for (auto node: graph.getVertexSet()) {
+        if (node->getInfo().getCode() == "SuperSource" || node->getInfo().getCode() == "ASuperSink") continue;
+        for (auto edge : node->getIncoming()) {
+            pipesRatios.push_back(edge->flowRatio());
         }
     }
 
-    for (auto vertex: networkCopy.getVertexSet()) {
-        if (vertex->getType() == City)
-            for (auto edge: vertex->getIncoming()) {
-                for (auto pipe: _pipes) {
-                    if (edge->getOrig()->getInfo().getCode() == pipe.getPointA() &&
-                        edge->getDest()->getInfo().getCode() == pipe.getPointB()) {
-                        edge->setWeight(pipe.getCapacity());
-                        break;
-                    } else continue;
+    size_t pipesSize = pipesRatios.size();
+    sort(pipesRatios.begin(), pipesRatios.end());
+
+    if (pipesRatios.size() % 2 == 0) {
+        return (pipesRatios[pipesSize / 2 - 1] + pipesRatios[pipesSize / 2]) / 2.0 * 100;
+    } else {
+        return pipesRatios[pipesSize / 2] * 100;
+    }
+}
+
+/**
+ * @brief Prints the variance of the flow ratio of the pipes in the entire network
+ * @details Time complexity O(V(E + 1)) where V is the number of vertexes and E the number of edges in the graph
+ * @param graph of the network
+ * @return a float of the calculated variance
+ */
+float GraphManager::varianceNetworkFlowRatio(const Graph<Node>& graph) {
+    vector<float> pipesRatios;
+    float variance = 0;
+    float mean = averageNetworkFlowRatio(graph);
+
+    for (auto node: graph.getVertexSet()) {
+        if (node->getInfo().getCode() == "SuperSource" || node->getInfo().getCode() == "ASuperSink") continue;
+        for (auto edge : node->getIncoming()) {
+            pipesRatios.push_back(edge->flowRatio());
+        }
+    }
+
+    for (float ratio : pipesRatios) {
+        variance += pow(ratio - mean, 2);
+    }
+    return variance / pipesRatios.size();
+}
+
+auto compareFlow = [](auto *a, auto *b) {
+    return ((a->flowRatio()) < (b->flowRatio()));
+};
+
+float maxRatio(vector<Edge<Node> *> incoming) {
+    //if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
+    auto maxElement = *max_element(incoming.begin(), incoming.end(), compareFlow);
+    return maxElement->flowRatio();}
+
+float minRatio(vector<Edge<Node> *> incoming) {
+    //if (city->getIncoming().size() == 1) return city->getIncoming().front()->flowRatio();
+    auto minElement = *min_element(incoming.begin(), incoming.end(), compareFlow);
+    return minElement->flowRatio();}
+
+/**
+ * @brief Tries to balance the flow ratio of all the pipes in the network by continously reducing the flow in the more saturated pipes entering a node while it improves the difference between the most and least saturated pipes entering the node or the average ratio of the node.
+ * @details Time complexity
+ */
+void GraphManager::flowRatioBalancer() {
+    cout << fixed << setprecision(2)
+    << "Initial average network flow ratio is: "  << averageNetworkFlowRatio(_graph) << endl
+    << "Initial median of the flow ratio is: " << medianNetworkFlowRatio(_graph) << endl
+    << "Initial variance of the flow ratio is: " << varianceNetworkFlowRatio(_graph) << endl;
+    int maxFlow = getSupply(nodeFinder("ASuperSink"));
+    //cout << "Initial flow: " << maxFlow << endl;
+
+    for (auto node: _graph.getVertexSet()) {
+        if (node->getInfo().getCode() == "SuperSource" || node->getInfo().getCode() == "ASuperSink") continue;
+        if (node->getIncoming().size() == 1) continue;
+
+        //for (int i = 0; i < node->getIncoming().size() * 5; i++) {
+            for (auto edge: node->getIncoming()) {
+                float oldRatio = edge->flowRatio() * 100;
+                float newRatio;
+
+                float oldDelta = maxRatio(node->getIncoming()) - minRatio(node->getIncoming());
+                float newDelta;
+                int oldWeight;
+                float averageRatio = averageNodeFlowRatio(node->getInfo().getCode());
+
+                if (oldRatio > averageRatio) {
+                    oldWeight = edge->getWeight();
+                    edge->setWeight(edge->getFlow() - 1);
+                    setOptimalFlows("SuperSource", "ASuperSink");
+                    newDelta = maxRatio(node->getIncoming()) - minRatio(node->getIncoming());
+                    newRatio = edge->flowRatio() * 100;
+
+                    if (getSupply(nodeFinder("ASuperSink")) < maxFlow) {
+                        //cout << " New total flow would be lower." << endl;
+                        edge->setWeight(oldWeight);
+                        setOptimalFlows("SuperSource", "ASuperSink");
+                        continue;
+                    }
+                    averageRatio = averageNodeFlowRatio(node->getInfo().getCode());
+
+                    while ((newRatio > averageRatio || newDelta < oldDelta)) {// && !isDeficient(city)) {
+                        oldWeight = edge->getWeight();
+                        edge->setWeight(edge->getFlow() - 1);
+                        setOptimalFlows("SuperSource", "ASuperSink");
+
+                        oldDelta = newDelta;
+                        newDelta = maxRatio(node->getIncoming()) - minRatio(node->getIncoming());
+                        newRatio = edge->flowRatio() * 100;
+
+                        if (getSupply(nodeFinder("ASuperSink")) < maxFlow) {
+                            //cout << " New total flow would be lower." << endl;
+                            edge->setWeight(oldWeight);
+                            setOptimalFlows("SuperSource", "ASuperSink");
+                            break;
+                        }
+
+                        averageRatio = averageNodeFlowRatio(node->getInfo().getCode());
+                    }
                 }
             }
+
+
+        for (auto vertex: _graph.getVertexSet()) {
+            for (auto edge: vertex->getIncoming()) {
+                edge->setWeight(edge->getBaseWeight());
+            }
+        }
+        int newFlow = getSupply(nodeFinder("ASuperSink"));
+        if (newFlow < maxFlow) cout << "Total flow: " << newFlow << endl;
     }
-    cout << "Final average network flow ratio is: " << averageNetworkFlowRatio(networkCopy) << endl;
+    cout << fixed << setprecision(2)
+    << "Final average network flow ratio is: " << averageNetworkFlowRatio(_graph) << endl
+    << "Final median of the flow ratio is: " << medianNetworkFlowRatio(_graph) << endl
+    << "Final variance of the flow ratio is: " << varianceNetworkFlowRatio(_graph) << endl;
+//    _graph = GraphManager().getGraph();
 }
 
 /**
@@ -430,13 +509,13 @@ void GraphManager::flowRatioBalancer() {
  */
 void GraphManager::removeNodeAddNode(string code){
 
-    cout << "Flow values before:" << endl;
+        cout << "Flow values before:" << endl;
 
-    networkStrength();
+        networkStrength();
 
-    Vertex<Node> *removedVertex = nodeFinder(code);
-    Vertex<Node>temp_vertex = *removedVertex;
-    Node node = temp_vertex.getInfo();
+        Vertex<Node> *removedVertex = nodeFinder(code);
+        Vertex<Node> temp_vertex = *removedVertex;
+        Node node = temp_vertex.getInfo();
 
     auto adj = removedVertex->getAdj();
     auto incoming = removedVertex->getIncoming();
@@ -460,25 +539,25 @@ void GraphManager::removeNodeAddNode(string code){
         type = station_type::City;
     }
 
-    _graph.addVertex(node,type);
+        _graph.addVertex(node, type);
 
-    for (auto edge: adj){
-        Vertex<Node> *start = edge ->getOrig();
-        Vertex<Node> *end = edge ->getDest();
-        _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
-    }
+        for (auto edge: adj) {
+            Vertex<Node> *start = edge->getOrig();
+            Vertex<Node> *end = edge->getDest();
+            _graph.addEdge(start->getInfo(), end->getInfo(), edge->getWeight());
+        }
 
-    for (auto edge: incoming){
-        Vertex<Node> *start = edge ->getOrig();
-        Vertex<Node> *end = edge ->getDest();
-        _graph.addEdge(start->getInfo(),end->getInfo(),edge->getWeight());
-    }
+        for (auto edge: incoming) {
+            Vertex<Node> *start = edge->getOrig();
+            Vertex<Node> *end = edge->getDest();
+            _graph.addEdge(start->getInfo(), end->getInfo(), edge->getWeight());
+        }
 
-    setOptimalFlows("SuperSource", "ASuperSink");
+        setOptimalFlows("SuperSource", "ASuperSink");
 
     cout << endl;
 
-}
+    }
 
 /**
  * @brief Removes a pipe from the graph, outgoing edge from one node to the other and incoming edge from the other node to the first
@@ -490,7 +569,7 @@ int GraphManager::removeAPipe(string origin, string dest){
 
     cout << endl << "Flow values before:" << endl;
 
-    networkStrength();
+        networkStrength();
 
     Vertex<Node> *originNode = nodeFinder(origin);
     Vertex<Node> *destNode = nodeFinder(dest);
@@ -503,13 +582,13 @@ int GraphManager::removeAPipe(string origin, string dest){
         }
     }
 
-    _graph.removeEdge(originNode->getInfo(),destNode->getInfo());
+        _graph.removeEdge(originNode->getInfo(), destNode->getInfo());
 
-    setOptimalFlows("SuperSource", "ASuperSink");
+        setOptimalFlows("SuperSource", "ASuperSink");
 
-    cout <<endl << "Flow values after:"<<endl;
+    cout << endl << "Flow values after:" << endl;
 
-    networkStrength();
+        networkStrength();
 
     return weight;
 }

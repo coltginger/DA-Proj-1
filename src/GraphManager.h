@@ -4,9 +4,11 @@
 #include <vector>
 #include "Pipe.h"
 #include <iostream>
+#include <iomanip>
 #include <limits>
 #include <algorithm>
 #include <map>
+#include <cmath>
 
 using namespace std;
 
@@ -19,7 +21,7 @@ private:
     Graph<Node> _graph;
     FileManager _vectors;
     vector<Pipe> _pipes;
-    int averageFlowRatio;
+    float averageFlowRatio;
 
 public:
     GraphManager();
@@ -29,7 +31,6 @@ public:
     void addPipes();
     void makeSuperSource();
     void makeSuperSink();
-
     int getAverageFlow() const;
 
     Vertex<Node> *nodeFinder(const string& code);
@@ -44,8 +45,10 @@ public:
     void writeFlow(string code);
 
     void networkStrength();
-    int averageNetworkFlowRatio(const Graph<Node>& graph);
-    int averageCityFlowRatio(const string& code);
+    float averageNetworkFlowRatio(const Graph<Node>& graph);
+    float averageNodeFlowRatio(const string& code);
+    float medianNetworkFlowRatio(const Graph<Node>& graph);
+    float varianceNetworkFlowRatio(const Graph<Node>& graph);
     void flowRatioBalancer();
 
     void removeNodeAddNode(string code);

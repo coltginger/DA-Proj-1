@@ -38,7 +38,7 @@ void App::run() {
                     }
 
                     cout << endl << "Press enter to continue." << endl;
-                    cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                    cin.ignore(numeric_limits<streamsize>::max(),'\n');
                     cin.get();
                 }
                 else if (a==2) {
@@ -49,7 +49,7 @@ void App::run() {
                     _graphManager.writeFlow(cityCode);
 
                     cout << endl << "Press enter to continue." << endl;
-                    cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                    cin.ignore(numeric_limits<streamsize>::max(),'\n');
                     cin.get();
                 }
                 break;
@@ -57,14 +57,14 @@ void App::run() {
                 _graphManager.networkStrength();
 
                 cout << endl << "Press enter to continue." << endl;
-                cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
                 cin.get();
                 break;
             case 3:
                 _graphManager.flowRatioBalancer();
 
                 cout << endl << "Press enter to continue." << endl;
-                cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+                cin.ignore(numeric_limits<streamsize>::max(),'\n');
                 cin.get();
                 break;
             case 4:

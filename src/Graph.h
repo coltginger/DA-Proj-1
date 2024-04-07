@@ -85,11 +85,12 @@ class Edge {
     Vertex<T> *dest;      // destination vertex
     int weight;         // edge weight
     int flow;
+    int baseWeight;
     Edge<T> *reverse = NULL;
 
 public:
-    Edge(Vertex<T> *dest, double w);
-    Edge(Vertex<T> *orig, Vertex<T> *dest, double w);
+    Edge(Vertex<T> *dest, int w);
+    Edge(Vertex<T> *orig, Vertex<T> *dest, int w);
 
     Vertex<T> *getOrig() const;
     Vertex<T> *getDest() const;
@@ -98,7 +99,9 @@ public:
     void setDest(Vertex<T> *dest);
     void setReverse(Edge<T> *reverse);
     int getWeight() const;
-    void setWeight(double weight);
+    void setWeight(int weight);
+    int getBaseWeight() const;
+    void setBaseWeight(int weight);
     int getFlow() const;
     void setFlow(int flow);
     void addFlow(int pathflow);
@@ -115,9 +118,6 @@ template <class T>
 class Graph {
 
     vector<Vertex<T> *> vertexSet;      // vertex set
-//    int _index_;                        // auxiliary field
-//    stack<Vertex<T>> _stack_;           // auxiliary field
-//    list<list<T>> _list_sccs_;        // auxiliary field
 
     void dfsVisit(Vertex<T> *v,  vector<T> & res) const;
     bool dfsIsDAG(Vertex<T> *v) const;
@@ -137,7 +137,6 @@ public:
     vector<T> topsort() const;
     bool isDAG() const;
 
-    //Graph(const Graph& original): vertexSet(original.getVertexSet()) {}
 };
 
 /****************** Provided constructors and functions ********************/
@@ -147,19 +146,21 @@ Vertex<T>::Vertex(T in, station_type newType): info(in), type(newType) {}
 
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *d, double w) {
+Edge<T>::Edge(Vertex<T> *d, int w) {
     dest = d;
     weight = w;
+    baseWeight = w;
     flow = 0;
 }
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *o, Vertex<T> *d, double w) {
+Edge<T>::Edge(Vertex<T> *o, Vertex<T> *d, int w) {
     orig = o;
     dest = d;
     weight = w;
+    baseWeight = w;
     flow = 0;
-};
+}
 
 template <class T>
 int Graph<T>::getNumVertex() const {
@@ -223,8 +224,18 @@ int Edge<T>::getWeight() const {
 }
 
 template<class T>
-void Edge<T>::setWeight(double w) {
+void Edge<T>::setWeight(int w) {
     Edge::weight = w;
+}
+
+template<class T>
+int Edge<T>::getBaseWeight() const {
+    return baseWeight;
+}
+
+template<class T>
+void Edge<T>::setBaseWeight(int w) {
+    Edge::baseWeight = w;
 }
 
 template<class T>
@@ -244,7 +255,7 @@ void Edge<T>::addFlow(int pathflow) {
 
 template<class T>
 float Edge<T>::flowRatio() const {
-    return (float)flow / (float)weight;
+    return (float)flow / (float)baseWeight;
 }
 
 /*
