@@ -58,6 +58,7 @@ public:
     Edge<T> * addEdge(Vertex<T> *dest, double w);
     //void addEdge(Vertex<T> *dest, double w);
     bool removeEdgeTo(Vertex<T> *d);
+    bool removeEdgeFrom(Vertex<T> *d);
     int getIndegree() const;
     void setIndegree(int indegree);
 
@@ -398,7 +399,7 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
     auto v2 = findVertex(dest);
     if (v1 == NULL || v2 == NULL)
         return false;
-    return v1->removeEdgeTo(v2);
+    return (v1->removeEdgeTo(v2) && v2->removeEdgeFrom(v1));
 }
 
 /*
@@ -415,6 +416,18 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
         }
     return false;
 }
+
+template <class T>
+bool Vertex<T>::removeEdgeFrom(Vertex<T> *d) {
+    for (auto it = incoming.begin(); it != incoming.end(); it++)
+        if ((*it)->orig == d) {
+            incoming.erase(it);
+            return true;
+        }
+    return false;
+}
+
+
 
 /*
  *  Removes a vertex with a given content (in) from a graph (this), and

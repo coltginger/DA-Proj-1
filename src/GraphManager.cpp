@@ -405,7 +405,7 @@ void GraphManager::removeNodeAddNode(string code){
 
     setOptimalFlows("SuperSource", "ASuperSink");
 
-    cout << endl << endl;
+    cout << endl;
 
 }
 
@@ -422,6 +422,7 @@ int GraphManager::removeAPipe(string origin, string dest){
     for(auto edge: originNode->getAdj()){
         if(edge->getDest() == destNode){
             weight = edge->getWeight();
+            break;
         }
     }
 

@@ -164,7 +164,7 @@ void App::removeReservoire() {
             STOP = true; // Exit the program
         }
         else if(_graphManager.nodeFinder(code) == nullptr){
-            cout << endl << "No node found with given code." << endl << endl;
+            cout << endl << "No edge found with given codes." << endl << endl;
         }
         else {
             if (toUpperString(code).substr(0, 2) != "R_") {
