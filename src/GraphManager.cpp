@@ -423,6 +423,12 @@ void GraphManager::flowRatioBalancer() {
     cout << "Final average network flow ratio is: " << averageNetworkFlowRatio(networkCopy) << endl;
 }
 
+/*
+ * Looks for a node with a given code and removes it from the graph, as well as its outgoing and incoming edges
+ * Time complexity is O(V + E), where V is the number of vertices and E is the number of edges
+ * Code of a node
+ * Returns nothing
+ */
 void GraphManager::removeNodeAddNode(string code){
 
     cout << "Flow values before:" << endl;
@@ -475,6 +481,12 @@ void GraphManager::removeNodeAddNode(string code){
 
 }
 
+/*
+ * Removes a pipe from the graph, outgoing edge from one node to the other and incoming edge from the other node to the first
+ * The time complexity is O(V + E), where V is the number of vertices and E is the number of edges
+ * Two codes for the origin and the destination of the pipe
+ * Returns an int with the weight of the removed edge from the graph
+ */
 int GraphManager::removeAPipe(string origin, string dest){
 
     cout << endl << "Flow values before:" << endl;
@@ -503,6 +515,12 @@ int GraphManager::removeAPipe(string origin, string dest){
     return weight;
 }
 
+/*
+ * Re insterts previously removed edges from graphs and re-calculates the max flow of the graph
+ * The time complexity of the function is O(V), where V is the number of vertexes
+ * Receives two vectors, one with codes for the re-introduction of pipes and a vector of weights
+ * Returns nothing
+ */
 void GraphManager::pipeRestore(vector<std::string> codes, vector<int> weights) {
 
     for(int i = 0; i<codes.size(); i+=2){
