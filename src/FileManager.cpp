@@ -4,7 +4,6 @@
 using namespace std;
 
 FileManager::FileManager() {
-    //na entrega final, tem que se usar os ficheiros do data set grande, estes são para tornar testes mais fáceis
     _reservoirsfile = filetoVector("../src/csv_small/Reservoirs_Madeira.csv");
     _stationsfile = filetoVector("../src/csv_small/Stations_Madeira.csv");
     _citiesfile = filetoVector("../src/csv_small/Cities_Madeira.csv");
@@ -43,6 +42,11 @@ vector<string> FileManager::getPipesFile() {
     return _pipesfile;
 }
 
+/**
+ * @brief Turns a file with the name given into a vector with all strings separated by commas and newliens as an iteration in it
+ * @param filename
+ * @return Returns a vector of strings with all the file content
+ */
 vector<string> FileManager::filetoVector(std::string filename) {
     vector<string> res;
 
