@@ -1,5 +1,6 @@
 #include "GraphManager.h"
 
+
 GraphManager::GraphManager() {
     makeNodes();
     makePipes();
@@ -14,6 +15,10 @@ Graph<Node> GraphManager::getGraph() {
     return _graph;
 }
 
+/**
+ * @brief Creates pipes from the Pipes file
+ * @details Time complexity O(n) where n is the number of strings in the Pipes file
+ */
 void GraphManager::makePipes() {
     auto pipeinfo = _vectors.getPipesFile();
     for (int i = 0; i < pipeinfo.size(); i = i + 4) {
@@ -26,6 +31,10 @@ void GraphManager::makePipes() {
     }
 }
 
+/**
+ * @brief Creates and adds vertex to the graph from the three Node files
+ * @details Time complexity O(n) where n is the number of total strings in the three corresponding files
+ */
 void GraphManager::makeNodes() {
     auto cityinfo = _vectors.getCitiesFile();
     auto stationinfo = _vectors.getStationsFile();
@@ -62,6 +71,10 @@ void GraphManager::makeNodes() {
     }
 }
 
+/**
+ * @brief Adds the pipes as edges to the graph
+ * @details Time complexity 0(n) where n is the number of Pipes in the vector
+ */
 void GraphManager::addPipes() {
     for (int i = 0; i < _pipes.size(); i++) {
         Vertex<Node> *source = nodeFinder(_pipes[i].getPointA());
@@ -75,6 +88,10 @@ void GraphManager::addPipes() {
     }
 }
 
+/**
+ * @brief Adds a vertex to the graph with edges to all Water Reservoirs with weight equal to their MaxDelivery
+ * @details Time complexity 0(n) where n is the number of vertex in the graph
+ */
 void GraphManager::makeSuperSource() {
     Node supeSource = Node();
     supeSource.setCode("SuperSource");
@@ -88,6 +105,10 @@ void GraphManager::makeSuperSource() {
     }
 }
 
+/**
+ * @brief Adds a vertex to the graph with edges incoming from all Cities with weight equal to their demand
+ * @details Time complexity 0(n) where n is the number of vertex in the graph
+ */
 void GraphManager::makeSuperSink() {
     Node superSink = Node();
     superSink.setCode("ASuperSink");
@@ -103,6 +124,12 @@ void GraphManager::makeSuperSink() {
 
 int GraphManager::getAverageFlow() const {return averageFlowRatio;}
 
+/**
+ * @brief Finds the vertex pointer when given its Node's code
+ * @details Time complexity O(n) where n is the number of vertex in the graph
+ * @param string code
+ * @return the pointer of the Vertex with the Node with the code given
+ */
 Vertex<Node> *GraphManager::nodeFinder(const string& code) {
     string newsource;
     for (auto i: _graph.getVertexSet()) {
@@ -113,6 +140,13 @@ Vertex<Node> *GraphManager::nodeFinder(const string& code) {
     return nullptr;
 }
 
+/**
+ * @brief turns a given id into the respective code, according to the type given
+ * @details Time complexity 0(1)
+ * @param int id
+ * @param station_type type
+ * @return the node's code
+ */
 string GraphManager::IdToCode(int id, station_type type) {
     switch (type) {
         case City:
@@ -125,6 +159,13 @@ string GraphManager::IdToCode(int id, station_type type) {
     return "Type not found";
 }
 
+/**
+ * @brief Through BFS, finds the currently shortest paths with capacity to the Super Sink
+ * @details Time complexity O(V + E), where V is the number of vertex and E is the number of edges in the graph
+ * @param source
+ * @param target
+ * @return True if a path is found, false if not
+ */
 bool GraphManager::findAugmentingPath(Vertex<Node>* source, Vertex<Node>* target){
     for (auto v : _graph.getVertexSet()){
         v->setVisited(false);
@@ -154,6 +195,13 @@ bool GraphManager::findAugmentingPath(Vertex<Node>* source, Vertex<Node>* target
     return target->isVisited();
 }
 
+/**
+ * @brief Finds the shortest available capacity in the paths given by findAugmentingPath
+ * @details Time complexity O(V), where V is the number of vertex in the graph
+ * @param source
+ * @param target
+ * @return The path's bottleneck
+ */
 int GraphManager::findBottleneck(string source, string target){
     int f = INT_MAX;
     for (auto v = nodeFinder(target) ; v!= nodeFinder(source);){
