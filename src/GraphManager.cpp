@@ -218,6 +218,13 @@ int GraphManager::findBottleneck(string source, string target){
     return f;
 }
 
+/**
+ * @brief Adds the bottleneck as a flow through the augmenting path
+ * @details Time complexity O(V), where V is the number of vertex in the graph
+ * @param source
+ * @param target
+ * @param f
+ */
 void GraphManager::addFlowToEdges(string source, string target, int f) {
     for (auto v = nodeFinder(target) ; v!= nodeFinder(source);){
         Edge<Node>* e = v->getPath();
@@ -233,6 +240,12 @@ void GraphManager::addFlowToEdges(string source, string target, int f) {
 
 }
 
+/**
+ * @brief With the implementation of the methods that are called, this method uses a Edmonds-Karp algorithm to fill the edges with the most optimal flow
+ * @details Time complexity is O(V*E^2) where V is the number of vertex and E is the number of edges in the graph
+ * @param ss
+ * @param ts
+ */
 void GraphManager::setOptimalFlows(string ss, string ts) {
     auto s = nodeFinder(ss);
     auto t = nodeFinder(ts);
@@ -249,6 +262,11 @@ void GraphManager::setOptimalFlows(string ss, string ts) {
 
 }
 
+/**
+ * @brief Prints the maximum amount of water that a given city can recieve
+ * @details Time complexity O(n) where n is the number of edges incoming to the given city
+ * @param code
+ */
 void GraphManager::writeFlow(std::string code) {
     auto i = nodeFinder(code);
     for (auto j : i->getAdj()){
