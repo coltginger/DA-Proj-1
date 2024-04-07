@@ -416,11 +416,16 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
         }
     return false;
 }
-
+/*
+ *  Auxiliary function to remove an incoming edge (with a given origin (o))
+ *  Time complexity is O(n) where n is the size of the incoming vector
+ *  from a vertex (this)
+ *  Returns true if successful, and false if such edge does not exist
+ */
 template <class T>
-bool Vertex<T>::removeEdgeFrom(Vertex<T> *d) {
+bool Vertex<T>::removeEdgeFrom(Vertex<T> *o) {
     for (auto it = incoming.begin(); it != incoming.end(); it++)
-        if ((*it)->orig == d) {
+        if ((*it)->orig == o) {
             incoming.erase(it);
             return true;
         }
