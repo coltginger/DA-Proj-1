@@ -13,7 +13,7 @@ void App::run() {
              "1. Max amount of water that can reach each or a specific city. " << endl <<
              "2. Verify satisfiability of water needs. " << endl <<
              "3. Rebalance the network" << endl <<
-             "4. Remove an element from the network (Reservoir, Station or Pipe).\" << endl; " << endl <<
+             "4. Remove an element from the network (Reservoir, Station or Pipe)." << endl <<
              "0. Close the program." << endl <<
              "Please select an option (number): ";
 
@@ -81,9 +81,9 @@ void App::removeOption() {
     bool STOP = false;
 
     while (!STOP) {
-        cout << "1. Remove Reservoir." << endl;
+        cout << endl << "1. Remove Reservoir." << endl;
         cout << "2. Remove Station." << endl;
-        cout << "3. Remove Pipe." << endl;
+        cout << "3. Remove Pipes." << endl;
         cout << "b. Go back." << endl;
         cout << "0. Close the program." << endl;
         cout << "Please select an option: ";
@@ -126,6 +126,8 @@ void App::removePumpingStation() {
 
         cin >> code;
 
+        cout << endl;
+
         if(code == "0"){
             STOP = true; // Exit the program
         }
@@ -156,6 +158,8 @@ void App::removeReservoire() {
 
         cin >> code;
 
+        cout << endl;
+
         if(code == "0"){
             STOP = true; // Exit the program
         }
@@ -178,44 +182,70 @@ void App::removeReservoire() {
 void App::removePiping() {
     bool STOP = false;
 
+    int num_pipes;
     string start, dest;
     bool valid_edge;
 
+
     while(!STOP){
-        cout << "Input the codes for the start and destination of the pipes." << endl;
-        cout << "Input 0 to exit." << endl;
-        cout << "Start node code:" << endl;
-        cin >> start;
+        cout << endl << "How many pipes do you wish to remove?:" << endl;
 
-        if(start == "0"){
-            STOP = true; // Exit the program
-        }
-        else if(_graphManager.nodeFinder(start) == nullptr){
-            cout << endl << "No node found with given code." << endl << endl;
-        }
-        else{
-            cout <<endl << "Destination node code:";
-            cin >> dest;
+        if (!(std::cin >> num_pipes)) {
+            cout << endl;
 
-            for(auto edge: _graphManager.nodeFinder(start)->getAdj()){
-                if(edge->getDest()->getInfo().getCode() == dest){
-                    valid_edge = true;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter an integer." << std::endl;
+        } else {
+            cout << endl;
+
+            vector<string> codes;
+            vector<int> weights;
+
+            while(num_pipes > 0){
+                valid_edge = false;
+
+                cout <<endl << "Input the codes for the start and destination of the pipes." << endl;
+                cout << "Input 0 to exit." << endl;
+                cout << "Start node code:" << endl;
+                cin >> start;
+                cout << endl;
+                if (start == "0") {
+                    num_pipes = 0;
+                    codes.clear();
+                    weights.clear();
+                } else if (_graphManager.nodeFinder(start) == nullptr) {
+                    cout << endl << "No node found with given code." << endl;
+                } else {
+                    codes.push_back(start);
+                    cout << "Destination node code:" << endl;
+                    cin >> dest;
+
+                    for (auto edge: _graphManager.nodeFinder(start)->getAdj()) {
+                        if (edge->getDest()->getInfo().getCode() == dest) {
+                            valid_edge = true;
+                            break;
+                        }
+                    }
+
+                    if (dest == "0") {
+                        codes.clear();
+                        weights.clear();
+                        num_pipes = 0;
+                    } else if (!valid_edge) {
+                        cout << endl << "No node found with given code. " << endl;
+                        codes.pop_back();
+                    } else {
+                        codes.push_back(dest);
+                        weights.push_back(_graphManager.removeAPipe(start, dest));
+                        num_pipes--;
+
+                    }
                 }
             }
-
-            if(dest == "0"){
-                STOP = true; // Exit the program
-            }
-            else if (!valid_edge){
-                cout <<endl << "No node found with given code. " << endl << endl;
-            }
-            else{
-                _graphManager.removePipeAddPipe(start,dest);
-                STOP = true;
-
-            }
+            _graphManager.pipeRestore(codes,weights);
+            STOP = true; //Exit the program;
         }
-
     }
 }
 

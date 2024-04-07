@@ -49,7 +49,8 @@ public:
     void flowRatioBalancer();
 
     void removeNodeAddNode(string code);
-    void removePipeAddPipe(string orig, string dest);
+    int removeAPipe(string orig, string dest);
+    void pipeRestore(vector<string> codes, vector<int> weights);
 
     Graph<Node> getGraph();
     FileManager getFileManager();

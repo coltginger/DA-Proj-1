@@ -409,16 +409,16 @@ void GraphManager::removeNodeAddNode(string code){
 
 }
 
-void GraphManager::removePipeAddPipe(string origin, string dest){
+int GraphManager::removeAPipe(string origin, string dest){
 
-    cout << "Flow values before:" << endl;
+    cout << endl << "Flow values before:" << endl;
 
     networkStrength();
 
     Vertex<Node> *originNode = nodeFinder(origin);
     Vertex<Node> *destNode = nodeFinder(dest);
-    int weight;
 
+    int weight;
     for(auto edge: originNode->getAdj()){
         if(edge->getDest() == destNode){
             weight = edge->getWeight();
@@ -429,13 +429,28 @@ void GraphManager::removePipeAddPipe(string origin, string dest){
 
     setOptimalFlows("SuperSource", "ASuperSink");
 
-    cout << "Flow values after:"<<endl;
+    cout <<endl << "Flow values after:"<<endl;
 
     networkStrength();
 
-    _graph.addEdge(originNode->getInfo(),destNode->getInfo(), weight);
+    return weight;
+}
+
+void GraphManager::pipeRestore(vector<std::string> codes, vector<int> weights) {
+
+    for(int i = 0; i<codes.size(); i+=2){
+        string orig = codes[i];
+        string dest = codes[i+1];
+
+        int weight = weights[i/2];
+
+        Vertex<Node> *originNode = nodeFinder(orig);
+        Vertex<Node> *destNode = nodeFinder(dest);
+
+        _graph.addEdge(originNode->getInfo(),destNode->getInfo(),weight);
+
+    }
 
     setOptimalFlows("SuperSource", "ASuperSink");
 
-    cout << endl << endl;
 }
